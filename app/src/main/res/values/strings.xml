@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GitHub Stars</string>
     <string name="et_search_owner_hint">Repository owner</string>
+    <string name="btn_search_text">Search</string>
 </resources>
