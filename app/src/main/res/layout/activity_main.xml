@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -11,6 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@+id/btn_search"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,26 +23,46 @@
             android:id="@+id/et_search_owner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/et_search_owner_hint" />
+            android:layout_weight="1"
+            android:gravity="start"
+            android:hint="@string/et_search_owner_hint"
+            android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_search"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginEnd="16dp"
         android:text="@string/btn_search_text"
         app:layout_constraintBottom_toBottomOf="@+id/til_search_owner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/til_search_owner" />
 
+    <TextView
+        android:id="@+id/tw_user_repos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/user_repositories"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/til_search_owner"
+        app:layout_constraintTop_toBottomOf="@+id/til_search_owner" />
+
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_search_owner" />
+        app:layout_constraintTop_toBottomOf="@+id/tw_user_repos"
+        tools:listitem="@layout/item_repository" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,4 +2,7 @@
     <string name="app_name">GitHub Stars</string>
     <string name="et_search_owner_hint">Repository owner</string>
     <string name="btn_search_text">Search</string>
+    <string name="user_repositories">User repositories</string>
+    <string name="add_to_liked">add to liked</string>
+    <string name="remove_from_liked">remove from liked</string>
 </resources>
