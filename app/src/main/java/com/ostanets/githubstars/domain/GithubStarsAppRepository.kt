@@ -1,31 +1,27 @@
 package com.ostanets.githubstars.domain
 
-import java.time.LocalDateTime
-
 interface GithubStarsAppRepository {
 
     //ADD
     suspend fun addUser(user: GithubUser)
 
-    suspend fun addRepository(owner: Long, repository: GithubRepository)
+    suspend fun addRepository(repository: GithubRepository)
 
-    suspend fun addStargazer(
-        repository: Long,
-        user: Long,
-        starredAt: LocalDateTime
-    )
+    suspend fun addStargazer(stargazer: GithubStargazer)
 
     //GET
+    suspend fun getUser(userId: Long): GithubUser
+
     suspend fun getUser(login: String): GithubUser
 
-    suspend fun getFavourites()
+    suspend fun getFavourites(): List<GithubRepository>
 
-    suspend fun initRepositories(user: GithubUser, page: Int): GithubUser
+    suspend fun initRepositories(user: GithubUser): GithubUser
 
-    suspend fun initStargazers(repository: GithubRepository, page: Int): GithubRepository
+    suspend fun initStargazers(repository: GithubRepository): GithubRepository
 
     //EDIT
-    suspend fun addRepositoryToFavourites(repository: GithubRepository)
+    suspend fun addRepositoryToFavourites(repositoryId: Long)
 
-    suspend fun removeRepositoryFromFavourites(repository: GithubRepository)
+    suspend fun removeRepositoryFromFavourites(repositoryId: Long)
 }

@@ -26,3 +26,11 @@ data class GithubStargazer(
     val RepositoryId: Long,
     val StarredAt: LocalDateTime
 )
+
+fun GithubStargazer.fromEntity(): com.ostanets.githubstars.domain.GithubStargazer {
+    return com.ostanets.githubstars.domain.GithubStargazer(UserId, RepositoryId, StarredAt)
+}
+
+fun com.ostanets.githubstars.domain.GithubStargazer.toEntity(): GithubStargazer {
+    return GithubStargazer(UserId, RepositoryId, StarredAt)
+}
