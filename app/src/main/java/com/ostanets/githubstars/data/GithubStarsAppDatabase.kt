@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(entities = [GithubUser::class, GithubRepository::class, GithubStargazer::class],
     version = 1, exportSchema = false)
+@TypeConverters(LocalDateConverter::class)
 abstract class GithubStarsAppDatabase : RoomDatabase() {
 
     abstract fun getGithubStarsDao(): GithubStarsDao

@@ -2,10 +2,11 @@ package com.ostanets.githubstars.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import java.time.LocalDateTime
+import org.threeten.bp.LocalDateTime
 
 @Entity(
     tableName = "github_repositories_stargazers",
+    primaryKeys = ["UserId", "RepositoryId"],
     foreignKeys = [
         ForeignKey(
             entity = GithubUser::class,

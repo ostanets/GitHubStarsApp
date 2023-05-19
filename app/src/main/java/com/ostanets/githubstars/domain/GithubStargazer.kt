@@ -1,6 +1,6 @@
 package com.ostanets.githubstars.domain
 
-import java.time.LocalDateTime
+import org.threeten.bp.LocalDateTime
 
 data class GithubStargazer (
     val UserId: Long,
