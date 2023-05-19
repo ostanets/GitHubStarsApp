@@ -1,7 +1,11 @@
 package com.ostanets.githubstars.domain
 
-data class GithubRepository (
+import java.time.LocalDateTime
+import java.util.SortedMap
+
+data class GithubRepository(
     val Id: Long,
     val Name: String,
-    val Stargazers: List<GithubRepositoryStargazers>,
+    val Favourite: Boolean,
+    val Stargazers: SortedMap<LocalDateTime, GithubUser>? = null
 )
