@@ -48,12 +48,17 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     def moxy_version = "2.2.2"
+    def dagger_version = "2.28.3"
     def room_version = "2.5.1"
 
     //MOXY
-    implementation "com.github.moxy-community:moxy-androidx:$moxy_version"
     implementation "com.github.moxy-community:moxy:$moxy_version"
+    implementation "com.github.moxy-community:moxy-androidx:$moxy_version"
     kapt "com.github.moxy-community:moxy-compiler:$moxy_version"
+
+    //DAGGER
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
     //ROOM
     implementation("androidx.room:room-runtime:$room_version")

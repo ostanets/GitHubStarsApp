@@ -2,6 +2,10 @@ package com.ostanets.githubstars.presenters
 
 import com.ostanets.githubstars.domain.GithubStarsAppRepository
 import com.ostanets.githubstars.views.MainView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
 
@@ -14,8 +18,11 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             return
         }
 
-        viewState.startSending()
-        viewState.endSending()
+        CoroutineScope(Dispatchers.Main).launch {
+            viewState.startSending()
+            delay(5000)
+            viewState.endSending()
+        }
     }
 
     private fun isValidLogin(login: String): Boolean {

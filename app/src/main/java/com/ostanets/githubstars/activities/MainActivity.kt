@@ -1,22 +1,18 @@
 package com.ostanets.githubstars.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.ostanets.githubstars.data.GithubStarsAppDatabase
 import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
-import com.ostanets.githubstars.data.GithubStarsDao
 import com.ostanets.githubstars.databinding.ActivityMainBinding
 import com.ostanets.githubstars.presenters.MainPresenter
 import com.ostanets.githubstars.views.MainView
+import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class MainActivity : AppCompatActivity(), MainView {
-    private lateinit var repository: GithubStarsAppRepositoryImpl
-    private lateinit var dao: GithubStarsDao
-    private lateinit var database: GithubStarsAppDatabase
+class MainActivity : MvpAppCompatActivity(), MainView {
     private lateinit var binding: ActivityMainBinding
 
     @InjectPresenter
@@ -24,20 +20,17 @@ class MainActivity : AppCompatActivity(), MainView {
 
     @ProvidePresenter
     fun provideMainPresenter(): MainPresenter {
+        val database = GithubStarsAppDatabase.getDatabase(this)
+        val dao = database.getGithubStarsDao()
+        val repository = GithubStarsAppRepositoryImpl(dao)
         return MainPresenter(repository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this)
-        database = GithubStarsAppDatabase.getDatabase(this)
-        dao = database.getGithubStarsDao()
-        repository = GithubStarsAppRepositoryImpl(dao)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        mainPresenter = provideMainPresenter()
-
         setupSearch()
     }
 
