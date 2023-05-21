@@ -19,6 +19,7 @@ fun com.ostanets.githubstars.domain.GithubUser.toEntity(): GithubUser {
     return GithubUser(Id, Login, AvatarUrl)
 }
 
-fun com.ostanets.githubstars.data.remote.github.GithubUser.toEntity(): GithubUser {
-    return GithubUser(Id, Login, AvatarUrl)
+fun com.ostanets.githubstars.data.remote.github.GithubUser.toDomain():
+        com.ostanets.githubstars.domain.GithubUser {
+    return com.ostanets.githubstars.domain.GithubUser(Id, Login, AvatarUrl)
 }

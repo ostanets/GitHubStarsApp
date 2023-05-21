@@ -2,6 +2,7 @@ package com.ostanets.githubstars.data.remote.github
 
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface GithubApiService {
     @GET("users/{user}")
@@ -9,17 +10,22 @@ interface GithubApiService {
         @Path("user") login: String
     ): GithubUser
 
-    @GET("users/{user}/repos?per_page=100&page={pageNumber}")
+    @GET("users/{user}/repos")
     suspend fun listRepos(
-        @Path("user") user: String,
-        @Path("repo") repo: String,
-        @Path("pageNumber") pageNumber: Int
+        @Path("user") login: String,
+        @Query("pageNumber") pageNumber: Int,
+        @Query("per_page") limit: Int
     ): List<GithubRepository>
 
-    @GET("{user}/{repo}/stargazers?per_page=100&page={pageNumber}")
+    @GET("{user}/{repo}/stargazers")
     suspend fun listStargazers(
-        @Path("user") user: String,
+        @Path("user") login: String,
         @Path("repo") repo: String,
-        @Path("pageNumber") pageNumber: Int
+        @Query("pageNumber") pageNumber: Int,
+        @Query("per_page") limit: Int
     ): List<GithubRepository>
+
+    companion object {
+        const val MAXIMUM_LIMIT = 100
+    }
 }

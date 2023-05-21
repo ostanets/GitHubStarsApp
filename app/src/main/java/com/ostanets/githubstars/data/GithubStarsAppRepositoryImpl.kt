@@ -8,7 +8,19 @@ import com.ostanets.githubstars.domain.GithubUser
 class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
     GithubStarsAppRepository {
     override suspend fun addUser(user: GithubUser): Long {
-        return githubStarsDao.addUser(user.toEntity())
+        val insertedId = githubStarsDao.addUser(user.toEntity())
+        if (!user.Repositories.isNullOrEmpty()) {
+            user.Repositories.forEach {repository ->
+                addRepository(repository)
+
+                if (!repository.Stargazers.isNullOrEmpty()) {
+                    repository.Stargazers.forEach {stargazer ->
+                        addStargazer(stargazer)
+                    }
+                }
+            }
+        }
+        return insertedId
     }
 
     override suspend fun addRepository(repository: GithubRepository): Long {
@@ -19,29 +31,39 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
         return githubStarsDao.addStargazer(stargazer.toEntity())
     }
 
-    override suspend fun getUser(userId: Long): GithubUser {
-        return githubStarsDao.getUser(userId).fromEntity()
+    override suspend fun getUser(userId: Long): GithubUser? {
+        var user = githubStarsDao.getUser(userId)?.fromEntity()
+
+        user = user?.let { initRepositories(it) }
+
+        val initialedRepositories = user?.Repositories?.map { repository ->
+            initStargazers(repository)
+        }
+
+        user = user?.copy(Repositories = initialedRepositories)
+
+        return user
     }
 
-    override suspend fun getUser(login: String): GithubUser {
-        return githubStarsDao.getUser(login).fromEntity()
+    override suspend fun getUser(login: String): GithubUser? {
+        return githubStarsDao.getUser(login)?.fromEntity()
     }
 
-    override suspend fun getFavourites(): List<GithubRepository> {
-        return githubStarsDao.getFavourites().map {
+    override suspend fun getFavourites(): List<GithubRepository>? {
+        return githubStarsDao.getFavourites()?.map {
             it.fromEntity()
         }
     }
 
     override suspend fun initRepositories(user: GithubUser): GithubUser {
-        val repositories = githubStarsDao.getRepositories(user.Id).map {
+        val repositories = githubStarsDao.getRepositories(user.Id)?.map {
             it.fromEntity()
         }
         return user.copy(Repositories = repositories)
     }
 
     override suspend fun initStargazers(repository: GithubRepository): GithubRepository {
-        val stargazers = githubStarsDao.getStargazers(repository.Id).map {
+        val stargazers = githubStarsDao.getStargazers(repository.Id)?.map {
             it.fromEntity()
         }
         return repository.copy(Stargazers = stargazers)

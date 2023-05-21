@@ -41,16 +41,18 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
     }
 
-    override fun startSending() {
+    override fun startSearch() {
         binding.etSearchOwner.clearFocus()
         binding.etSearchOwner.isEnabled = false
         binding.btnSearch.isEnabled = false
     }
 
-    override fun endSending() {
+    override fun endSearch() {
         binding.etSearchOwner.isEnabled = true
         binding.btnSearch.isEnabled = true
     }
+
+    override fun commitRepositories() {}
 
     override fun showError(message: String) {
         Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()

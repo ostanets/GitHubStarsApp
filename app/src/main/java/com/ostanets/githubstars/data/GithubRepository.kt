@@ -28,8 +28,8 @@ fun com.ostanets.githubstars.domain.GithubRepository.toEntity(): GithubRepositor
     return GithubRepository(Id, Name, Favourite, UserId)
 }
 
-fun com.ostanets.githubstars.data.remote.github.GithubRepository.toEntity(
+fun com.ostanets.githubstars.data.remote.github.GithubRepository.toDomain(
     UserId: Long
-): GithubRepository {
-    return GithubRepository(Id, Name, false, UserId)
+): com.ostanets.githubstars.domain.GithubRepository {
+    return com.ostanets.githubstars.domain.GithubRepository(Id, Name, false, UserId)
 }

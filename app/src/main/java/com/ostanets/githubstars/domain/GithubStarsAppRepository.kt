@@ -10,11 +10,11 @@ interface GithubStarsAppRepository {
     suspend fun addStargazer(stargazer: GithubStargazer): Long
 
     //GET
-    suspend fun getUser(userId: Long): GithubUser
+    suspend fun getUser(userId: Long): GithubUser?
 
-    suspend fun getUser(login: String): GithubUser
+    suspend fun getUser(login: String): GithubUser?
 
-    suspend fun getFavourites(): List<GithubRepository>
+    suspend fun getFavourites(): List<GithubRepository>?
 
     suspend fun initRepositories(user: GithubUser): GithubUser
 
