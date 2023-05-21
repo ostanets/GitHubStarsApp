@@ -47,27 +47,40 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    def moxy_version = "2.2.2"
-    def dagger_version = "2.28.3"
-    def room_version = "2.5.1"
 
     //MOXY
+    def moxy_version = "2.2.2"
     implementation "com.github.moxy-community:moxy:$moxy_version"
     implementation "com.github.moxy-community:moxy-androidx:$moxy_version"
     kapt "com.github.moxy-community:moxy-compiler:$moxy_version"
 
     //DAGGER
+    def dagger_version = "2.28.3"
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
     //ROOM
+    def room_version = "2.5.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
 
     //THREETENABP
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.0'
+    def threetenabp_version = "1.3.0"
+    implementation "com.jakewharton.threetenabp:threetenabp:$threetenabp_version"
 
+    //INTERNET
+    def retrofit_version = "2.9.0"
+    def okhttp_version = "4.9.0"
+    def moshi_version = "1.12.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+
+    //ANDROID
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'

@@ -10,13 +10,13 @@ interface GithubStarsDao {
 
     //ADD
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addUser(user: GithubUser)
+    suspend fun addUser(user: GithubUser): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun addRepository(repository: GithubRepository): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addRepository(repository: GithubRepository)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addStargazer(stargazer: GithubStargazer)
+    suspend fun addStargazer(stargazer: GithubStargazer): Long
 
     //GET
     @Query("SELECT * FROM `github_users` WHERE userId = :userId")
@@ -27,6 +27,9 @@ interface GithubStarsDao {
 
     @Query("SELECT * FROM `github_repositories` WHERE favourite = 1")
     suspend fun getFavourites(): List<GithubRepository>
+
+    @Query("SELECT * FROM `github_repositories` WHERE repositoryId = :repositoryId")
+    suspend fun getRepository(repositoryId: Long): GithubRepository
 
     @Query("SELECT * FROM `github_repositories` WHERE userId = :userId")
     suspend fun getRepositories(userId: Long): List<GithubRepository>

@@ -7,16 +7,16 @@ import com.ostanets.githubstars.domain.GithubUser
 
 class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
     GithubStarsAppRepository {
-    override suspend fun addUser(user: GithubUser) {
-        githubStarsDao.addUser(user.toEntity())
+    override suspend fun addUser(user: GithubUser): Long {
+        return githubStarsDao.addUser(user.toEntity())
     }
 
-    override suspend fun addRepository(repository: GithubRepository) {
-        githubStarsDao.addRepository(repository.toEntity())
+    override suspend fun addRepository(repository: GithubRepository): Long {
+        return githubStarsDao.addRepository(repository.toEntity())
     }
 
-    override suspend fun addStargazer(stargazer: GithubStargazer) {
-        githubStarsDao.addStargazer(stargazer.toEntity())
+    override suspend fun addStargazer(stargazer: GithubStargazer): Long {
+        return githubStarsDao.addStargazer(stargazer.toEntity())
     }
 
     override suspend fun getUser(userId: Long): GithubUser {

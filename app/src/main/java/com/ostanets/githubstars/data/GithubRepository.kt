@@ -17,7 +17,7 @@ data class GithubRepository(
     @PrimaryKey val RepositoryId: Long,
     val Name: String,
     val Favourite: Boolean,
-    @ColumnInfo(index = true) val UserId: Long,
+    @ColumnInfo(index = true) val UserId: Long
 )
 
 fun GithubRepository.fromEntity(): com.ostanets.githubstars.domain.GithubRepository {
@@ -26,4 +26,10 @@ fun GithubRepository.fromEntity(): com.ostanets.githubstars.domain.GithubReposit
 
 fun com.ostanets.githubstars.domain.GithubRepository.toEntity(): GithubRepository {
     return GithubRepository(Id, Name, Favourite, UserId)
+}
+
+fun com.ostanets.githubstars.data.remote.github.GithubRepository.toEntity(
+    UserId: Long
+): GithubRepository {
+    return GithubRepository(Id, Name, false, UserId)
 }

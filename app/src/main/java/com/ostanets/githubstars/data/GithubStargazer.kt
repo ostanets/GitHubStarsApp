@@ -35,3 +35,9 @@ fun GithubStargazer.fromEntity(): com.ostanets.githubstars.domain.GithubStargaze
 fun com.ostanets.githubstars.domain.GithubStargazer.toEntity(): GithubStargazer {
     return GithubStargazer(UserId, RepositoryId, StarredAt)
 }
+
+fun com.ostanets.githubstars.data.remote.github.GithubStargazer.toEntity(
+    repositoryId: Long
+): GithubStargazer {
+    return GithubStargazer(UserId, repositoryId, StarredAt)
+}

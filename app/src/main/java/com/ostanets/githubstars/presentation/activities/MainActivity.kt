@@ -1,4 +1,4 @@
-package com.ostanets.githubstars.activities
+package com.ostanets.githubstars.presentation.activities
 
 import android.os.Bundle
 import android.widget.Toast
@@ -6,8 +6,8 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.ostanets.githubstars.data.GithubStarsAppDatabase
 import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
-import com.ostanets.githubstars.presenters.MainPresenter
-import com.ostanets.githubstars.views.MainView
+import com.ostanets.githubstars.presentation.presenters.MainPresenter
+import com.ostanets.githubstars.presentation.views.MainView
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter

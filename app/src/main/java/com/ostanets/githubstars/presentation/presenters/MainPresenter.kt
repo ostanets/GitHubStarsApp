@@ -1,16 +1,27 @@
-package com.ostanets.githubstars.presenters
+package com.ostanets.githubstars.presentation.presenters
 
+import android.util.Log
+import com.ostanets.githubstars.data.remote.github.GithubApiService
+import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
 import com.ostanets.githubstars.domain.GithubStarsAppRepository
-import com.ostanets.githubstars.views.MainView
+import com.ostanets.githubstars.presentation.views.MainView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import javax.inject.Inject
 
 @InjectViewState
 class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPresenter<MainView>() {
+    private val TAG = MainPresenter::class.simpleName
+
+    @Inject
+    lateinit var githubApiService: GithubApiService
+
+    init {
+        DaggerGithubNetworkComponent.create().inject(this)
+    }
 
     fun getRepositories(login: String) {
         if (!isValidLogin(login)) {
@@ -20,7 +31,8 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
         CoroutineScope(Dispatchers.Main).launch {
             viewState.startSending()
-            delay(5000)
+            val user = githubApiService.findUser(login)
+            Log.d(TAG, "getRepositories: $user")
             viewState.endSending()
         }
     }

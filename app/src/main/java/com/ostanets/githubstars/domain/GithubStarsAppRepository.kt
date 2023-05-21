@@ -3,11 +3,11 @@ package com.ostanets.githubstars.domain
 interface GithubStarsAppRepository {
 
     //ADD
-    suspend fun addUser(user: GithubUser)
+    suspend fun addUser(user: GithubUser): Long
 
-    suspend fun addRepository(repository: GithubRepository)
+    suspend fun addRepository(repository: GithubRepository): Long
 
-    suspend fun addStargazer(stargazer: GithubStargazer)
+    suspend fun addStargazer(stargazer: GithubStargazer): Long
 
     //GET
     suspend fun getUser(userId: Long): GithubUser
