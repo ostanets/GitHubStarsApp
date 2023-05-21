@@ -12,7 +12,7 @@ interface GithubStarsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addUser(user: GithubUser): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun addRepository(repository: GithubRepository): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
