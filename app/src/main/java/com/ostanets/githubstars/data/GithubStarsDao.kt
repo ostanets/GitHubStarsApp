@@ -12,7 +12,7 @@ interface GithubStarsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addUser(user: GithubUser): Long
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addRepository(repository: GithubRepository): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -22,7 +22,7 @@ interface GithubStarsDao {
     @Query("SELECT * FROM `github_users` WHERE userId = :userId")
     suspend fun getUser(userId: Long): GithubUser?
 
-    @Query("SELECT * FROM `github_users` WHERE login = :login")
+    @Query("SELECT * FROM `github_users` WHERE UPPER(login) = UPPER(:login)")
     suspend fun getUser(login: String): GithubUser?
 
     @Query("SELECT * FROM `github_repositories` WHERE favourite = 1")

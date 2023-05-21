@@ -2,10 +2,15 @@ package com.ostanets.githubstars.presentation.activities
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.ostanets.githubstars.data.GithubStarsAppDatabase
 import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
+import com.ostanets.githubstars.domain.GithubRepository
+import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter
+import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter.Companion.DEFAULT_TYPE
+import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
 import com.ostanets.githubstars.presentation.presenters.MainPresenter
 import com.ostanets.githubstars.presentation.views.MainView
 import moxy.MvpAppCompatActivity
@@ -14,6 +19,7 @@ import moxy.presenter.ProvidePresenter
 
 class MainActivity : MvpAppCompatActivity(), MainView {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var repositoriesListAdapter: RepositoriesListAdapter
 
     @InjectPresenter
     lateinit var mainPresenter: MainPresenter
@@ -31,6 +37,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         AndroidThreeTen.init(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupRecyclerView()
         setupSearch()
     }
 
@@ -38,6 +46,24 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.btnSearch.setOnClickListener {
             val login = binding.etSearchOwner.text.toString()
             mainPresenter.getRepositories(login)
+        }
+    }
+
+    private fun setupRecyclerView() {
+        val rvRepositoriesList = binding.rwRepositoriesList
+        repositoriesListAdapter = RepositoriesListAdapter()
+
+        with(rvRepositoriesList) {
+            layoutManager = LinearLayoutManager(binding.root.context)
+            adapter = repositoriesListAdapter
+            recycledViewPool.setMaxRecycledViews(
+                DEFAULT_TYPE,
+                MAX_POOL_SIZE
+            )
+        }
+
+        repositoriesListAdapter.onLikeClickListener = {
+            mainPresenter.toggleLike(it)
         }
     }
 
@@ -52,7 +78,11 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.btnSearch.isEnabled = true
     }
 
-    override fun commitRepositories() {}
+    override fun commitRepositories(repositories: List<GithubRepository>) {
+        repositoriesListAdapter.submitList(
+            repositories.sortedWith(compareBy( { !it.Favourite }, { it.Name } ))
+        )
+    }
 
     override fun showError(message: String) {
         Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()

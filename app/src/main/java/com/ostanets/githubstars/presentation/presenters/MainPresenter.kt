@@ -7,16 +7,18 @@ import com.ostanets.githubstars.domain.GithubRepository
 import com.ostanets.githubstars.domain.GithubStarsAppRepository
 import com.ostanets.githubstars.domain.GithubUser
 import com.ostanets.githubstars.presentation.views.MainView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import javax.inject.Inject
 
 @InjectViewState
 class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPresenter<MainView>() {
-    private val TAG = MainPresenter::class.simpleName
-
     @Inject
     lateinit var githubApiService: GithubApiService
 
@@ -24,46 +26,75 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         DaggerGithubNetworkComponent.create().inject(this)
     }
 
-    private val user: GithubUser? = null
+    private var user: GithubUser? = null
 
     fun getRepositories(login: String) {
         if (!isValidLogin(login)) {
             viewState.showError("Invalid github user")
             return
         }
-        viewState.startSearch()
 
-        runBlocking {
-            val cashDataLoading = launch {
-                val cashedUser = loadCashedData(login)
-                user ?: cashedUser
-            }
+        CoroutineScope(Dispatchers.Main).launch {
+            viewState.startSearch()
 
-            val networkDataLoading = launch {
+            val cacheDataDeferred = async(start = CoroutineStart.LAZY) { loadCachedData(login) }
+            val networkDataDeferred = async(start = CoroutineStart.LAZY) {
+                delay(2000)
                 loadNetworkData(login)
             }
 
-            cashDataLoading.join()
-            networkDataLoading.join()
+            cacheDataDeferred.start()
+            networkDataDeferred.start()
+
+            val cachedUser = cacheDataDeferred.await()
+            if (cachedUser != null) {
+                user = cachedUser
+                user?.Repositories?.let {
+                    viewState.commitRepositories(it)
+                }
+            }
+
+            val newUser = networkDataDeferred.await()
+            if (newUser != null) {
+                user = newUser
+                val repositories = user?.Repositories
+                viewState.commitRepositories(repositories ?: emptyList())
+            }
+
+            viewState.endSearch()
         }
-
-        viewState.showError("wtf")
-
-        viewState.endSearch()
     }
 
-    private suspend fun loadCashedData(login: String): GithubUser? {
+    fun toggleLike(githubRepository: GithubRepository) {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (githubRepository.Favourite) {
+                repository.removeRepositoryFromFavourites(githubRepository.Id)
+            } else {
+                repository.addRepositoryToFavourites(githubRepository.Id)
+            }
+
+            user = repository.getUser(githubRepository.UserId)
+
+            user?.Repositories?.let { viewState.commitRepositories(it) }
+        }
+    }
+
+    private suspend fun loadCachedData(login: String): GithubUser? {
         val user = repository.getUser(login)
         return user?.let { repository.initRepositories(it) }
     }
 
-    private suspend fun loadNetworkData(login: String): GithubUser {
-        val user = findUser(login)
-        val repositories = findRepositories(login, user)
+    private suspend fun loadNetworkData(login: String): GithubUser? {
+        return try {
+            val user = findUser(login)
+            val repositories = findRepositories(login, user)
 
-        val newUser = user.copy(Repositories = repositories)
-        repository.addUser(newUser)
-        return newUser
+            val newUser = user.copy(Repositories = repositories)
+            repository.addUser(newUser)
+            newUser
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private suspend fun findRepositories(
