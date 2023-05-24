@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [GithubUser::class, GithubRepository::class, GithubStargazer::class],
+@Database(entities = [GithubUser::class, GithubRepository::class, GithubStargazer::class, FavouriteRepository::class],
     version = 1, exportSchema = false)
 @TypeConverters(LocalDateConverter::class)
 abstract class GithubStarsAppDatabase : RoomDatabase() {

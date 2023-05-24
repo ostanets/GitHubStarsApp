@@ -14,7 +14,8 @@ interface GithubStarsAppRepository {
 
     suspend fun getUser(login: String): GithubUser?
 
-    suspend fun getFavourites(): List<GithubRepository>?
+    suspend fun getFavourites(): List<GithubRepository>
+    suspend fun isFavourite(repositoryId: Long): Boolean
 
     suspend fun initRepositories(user: GithubUser): GithubUser
 

@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -39,7 +38,6 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
             val cacheDataDeferred = async(start = CoroutineStart.LAZY) { loadCachedData(login) }
             val networkDataDeferred = async(start = CoroutineStart.LAZY) {
-                delay(2000)
                 loadNetworkData(login)
             }
 
@@ -57,7 +55,10 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             val newUser = networkDataDeferred.await()
             if (newUser != null) {
                 user = newUser
-                val repositories = user?.Repositories
+                repository.addUser(user!!)
+                val repositories = user?.Repositories?.map {
+                    it.copy(Favourite = repository.isFavourite(it.Id))
+                }
                 viewState.commitRepositories(repositories ?: emptyList())
             }
 
@@ -88,10 +89,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         return try {
             val user = findUser(login)
             val repositories = findRepositories(login, user)
-
-            val newUser = user.copy(Repositories = repositories)
-            repository.addUser(newUser)
-            newUser
+            user.copy(Repositories = repositories)
         } catch (_: Exception) {
             null
         }
