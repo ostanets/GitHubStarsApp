@@ -10,11 +10,11 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
     override suspend fun addUser(user: GithubUser): Long {
         val insertedId = githubStarsDao.addUser(user.toEntity())
         if (!user.Repositories.isNullOrEmpty()) {
-            user.Repositories.forEach {repository ->
+            user.Repositories!!.forEach { repository ->
                 addRepository(repository)
 
                 if (!repository.Stargazers.isNullOrEmpty()) {
-                    repository.Stargazers.forEach {stargazer ->
+                    repository.Stargazers!!.forEach { stargazer ->
                         addStargazer(stargazer)
                     }
                 }
@@ -40,7 +40,7 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
             initStargazers(repository)
         }
 
-        user = user?.copy(Repositories = initialedRepositories)
+        user?.Repositories = initialedRepositories
 
         return user
     }
@@ -49,9 +49,21 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
         return githubStarsDao.getUser(login)?.fromEntity()
     }
 
-    override suspend fun getFavourites(): List<GithubRepository> {
-        return githubStarsDao.getFavourites().map {
-            githubStarsDao.getRepository(it)!!.fromEntity(true)
+    override suspend fun isUserExist(login: String): Boolean {
+        return githubStarsDao.getUser(login) != null
+    }
+
+    override suspend fun isRepositoryExist(repositoryId: Long): Boolean {
+        return githubStarsDao.getRepository(repositoryId) != null
+    }
+
+    override suspend fun isRepositoryFavourite(repositoryId: Long): Boolean {
+        return githubStarsDao.isRepositoryFavourite(repositoryId)
+    }
+
+    override suspend fun getFavourites(): List<GithubRepository>? {
+        return githubStarsDao.getFavourites()?.map {
+            it.fromEntity()
         }
     }
 
@@ -66,14 +78,24 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
                     isFavourite(repository.RepositoryId)
                 )
         }
-        return user.copy(Repositories = repositories)
+        user.Repositories = repositories
+        return user
     }
 
     override suspend fun initStargazers(repository: GithubRepository): GithubRepository {
         val stargazers = githubStarsDao.getStargazers(repository.Id)?.map {
             it.fromEntity()
         }
-        return repository.copy(Stargazers = stargazers)
+        repository.Stargazers = stargazers
+        return repository
+    }
+
+    override suspend fun editUser(user: GithubUser) {
+        githubStarsDao.editUser(user.Id, user.Login, user.AvatarUrl)
+    }
+
+    override suspend fun editRepository(repository: GithubRepository) {
+        githubStarsDao.editRepository(repository.Id, repository.Name)
     }
 
     override suspend fun addRepositoryToFavourites(repositoryId: Long) {

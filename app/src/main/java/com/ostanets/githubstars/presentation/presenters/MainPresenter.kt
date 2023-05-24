@@ -1,5 +1,6 @@
 package com.ostanets.githubstars.presentation.presenters
 
+import android.util.Log
 import com.ostanets.githubstars.data.remote.github.GithubApiService
 import com.ostanets.githubstars.data.toDomain
 import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
@@ -55,12 +56,29 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             val newUser = networkDataDeferred.await()
             if (newUser != null) {
                 user = newUser
-//                repository.addUser(newUser)
+                initFavouriteStatuses()
                 val repositories = user?.Repositories
-                viewState.commitRepositories(repositories ?: emptyList())
+                Log.d("TAG", "getRepositories: ${repositories.toString()}")
+                if (!repositories.isNullOrEmpty()) {
+                    viewState.commitRepositories(repositories)
+                } else {
+                    viewState.commitRepositories(emptyList())
+                    viewState.showError("User hasn't public repositories")
+                }
+            } else {
+                viewState.commitRepositories(emptyList())
+                viewState.showError("User not found")
             }
 
             viewState.endSearch()
+
+            cacheUser(newUser)
+        }
+    }
+
+    private suspend fun initFavouriteStatuses() {
+        user?.Repositories?.forEach {
+            it.Favourite = repository.isRepositoryFavourite(it.Id)
         }
     }
 
@@ -86,14 +104,28 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     private suspend fun loadNetworkData(login: String): GithubUser? {
         return try {
             val user = findUser(login)
-            val repositories = findRepositories(login, user).map {
-                it.copy(Favourite = repository.isFavourite(it.Id))
-            }
-            val newUser = user.copy(Repositories = repositories)
-            newUser
-        } catch (e: Exception) {
-            viewState.showError("null")
+            val repositories = findRepositories(login, user)
+            user.Repositories = repositories
+            user
+        } catch (_: Exception) {
             null
+        }
+    }
+
+    private suspend fun cacheUser(user: GithubUser?) {
+        if (user != null) {
+            if (repository.isUserExist(user.Login)) {
+                repository.editUser(user)
+                user.Repositories?.forEach {
+                    if (repository.isRepositoryExist(it.Id)) {
+                        repository.editRepository(it)
+                    } else {
+                        repository.addRepository(it)
+                    }
+                }
+            } else {
+                repository.addUser(user)
+            }
         }
     }
 
