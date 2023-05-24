@@ -55,10 +55,8 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             val newUser = networkDataDeferred.await()
             if (newUser != null) {
                 user = newUser
-                repository.addUser(user!!)
-                val repositories = user?.Repositories?.map {
-                    it.copy(Favourite = repository.isFavourite(it.Id))
-                }
+//                repository.addUser(newUser)
+                val repositories = user?.Repositories
                 viewState.commitRepositories(repositories ?: emptyList())
             }
 
@@ -88,9 +86,13 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     private suspend fun loadNetworkData(login: String): GithubUser? {
         return try {
             val user = findUser(login)
-            val repositories = findRepositories(login, user)
-            user.copy(Repositories = repositories)
-        } catch (_: Exception) {
+            val repositories = findRepositories(login, user).map {
+                it.copy(Favourite = repository.isFavourite(it.Id))
+            }
+            val newUser = user.copy(Repositories = repositories)
+            newUser
+        } catch (e: Exception) {
+            viewState.showError("null")
             null
         }
     }
