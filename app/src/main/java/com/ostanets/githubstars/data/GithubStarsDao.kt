@@ -9,7 +9,7 @@ import androidx.room.Query
 interface GithubStarsDao {
 
     //ADD
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun addUser(user: GithubUser): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -28,6 +28,9 @@ interface GithubStarsDao {
     @Query("SELECT * FROM `github_repositories` WHERE favourite = 1")
     suspend fun getFavourites(): List<GithubRepository>?
 
+    @Query("SELECT Favourite FROM `github_repositories` WHERE repositoryId = :repositoryId")
+    suspend fun isRepositoryFavourite(repositoryId: Long): Boolean
+
     @Query("SELECT * FROM `github_repositories` WHERE repositoryId = :repositoryId")
     suspend fun getRepository(repositoryId: Long): GithubRepository?
 
@@ -38,6 +41,12 @@ interface GithubStarsDao {
     suspend fun getStargazers(repositoryId: Long): List<GithubStargazer>?
 
     //EDIT
+    @Query("UPDATE `github_users` SET login = :login, avatarUrl = :avatarUrl WHERE userId = :userId")
+    suspend fun editUser(userId: Long, login: String, avatarUrl: String)
+
+    @Query("UPDATE `github_repositories` SET name = :name WHERE repositoryId = :repositoryId")
+    suspend fun editRepository(repositoryId: Long, name: String)
+
     @Query("UPDATE `github_repositories` SET favourite = 1 WHERE repositoryId = :repositoryId")
     suspend fun addRepositoryToFavourites(repositoryId: Long)
 

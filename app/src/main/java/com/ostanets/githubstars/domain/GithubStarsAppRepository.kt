@@ -14,6 +14,12 @@ interface GithubStarsAppRepository {
 
     suspend fun getUser(login: String): GithubUser?
 
+    suspend fun isUserExist(login: String): Boolean
+
+    suspend fun isRepositoryExist(repositoryId: Long): Boolean
+
+    suspend fun isRepositoryFavourite(repositoryId: Long): Boolean
+
     suspend fun getFavourites(): List<GithubRepository>?
 
     suspend fun initRepositories(user: GithubUser): GithubUser
@@ -21,6 +27,10 @@ interface GithubStarsAppRepository {
     suspend fun initStargazers(repository: GithubRepository): GithubRepository
 
     //EDIT
+    suspend fun editUser(user: GithubUser)
+
+    suspend fun editRepository(repository: GithubRepository)
+
     suspend fun addRepositoryToFavourites(repositoryId: Long)
 
     suspend fun removeRepositoryFromFavourites(repositoryId: Long)

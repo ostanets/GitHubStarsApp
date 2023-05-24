@@ -2,7 +2,7 @@ package com.ostanets.githubstars.domain
 
 data class GithubUser (
     val Id: Long,
-    val Login: String,
-    val AvatarUrl: String,
-    val Repositories: List<GithubRepository>? = null
+    var Login: String,
+    var AvatarUrl: String,
+    var Repositories: List<GithubRepository>? = null
 )
