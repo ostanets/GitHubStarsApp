@@ -31,7 +31,9 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private var user: GithubUser? = null
 
-    fun getRepositories(login: String) {
+    fun getRepositories(inputLogin: String) {
+        val login = parseLogin(inputLogin)
+
         if (!isValidLogin(login)) {
             viewState.showError("Invalid github user")
             return
@@ -190,5 +192,9 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private fun isValidLogin(login: String): Boolean {
         return login.isNotBlank()
+    }
+
+    private fun parseLogin(login: String): String {
+        return login.trim()
     }
 }
