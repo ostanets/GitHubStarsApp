@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".presentation.activities.MainActivity">
+    tools:context=".presentation.main.MainActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search_owner"

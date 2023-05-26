@@ -1,4 +1,4 @@
-package com.ostanets.githubstars.presentation.diffcallbacks
+package com.ostanets.githubstars.presentation.main
 
 import androidx.recyclerview.widget.DiffUtil
 import com.ostanets.githubstars.domain.GithubRepository

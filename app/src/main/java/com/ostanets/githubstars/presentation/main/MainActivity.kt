@@ -1,4 +1,4 @@
-package com.ostanets.githubstars.presentation.activities
+package com.ostanets.githubstars.presentation.main
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,11 +8,8 @@ import com.ostanets.githubstars.data.GithubStarsAppDatabase
 import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
 import com.ostanets.githubstars.domain.GithubRepository
-import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter
-import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter.Companion.DEFAULT_TYPE
-import com.ostanets.githubstars.presentation.adapters.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
-import com.ostanets.githubstars.presentation.presenters.MainPresenter
-import com.ostanets.githubstars.presentation.views.MainView
+import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.DEFAULT_TYPE
+import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -67,15 +64,22 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
     }
 
-    override fun startSearch() {
+    override fun setSearchState(state: String) {
+        when (state) {
+            MainView.START_SEARCH -> startSearch()
+            MainView.END_SEARCH -> endSearch()
+        }
+    }
+
+    private fun endSearch() {
+        binding.etSearchOwner.isEnabled = true
+        binding.btnSearch.isEnabled = true
+    }
+
+    private fun startSearch() {
         binding.etSearchOwner.clearFocus()
         binding.etSearchOwner.isEnabled = false
         binding.btnSearch.isEnabled = false
-    }
-
-    override fun endSearch() {
-        binding.etSearchOwner.isEnabled = true
-        binding.btnSearch.isEnabled = true
     }
 
     override fun commitRepositories(repositories: List<GithubRepository>) {

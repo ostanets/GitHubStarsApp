@@ -1,12 +1,10 @@
-package com.ostanets.githubstars.presentation.adapters
+package com.ostanets.githubstars.presentation.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ostanets.githubstars.databinding.ItemRepositoryBinding
 import com.ostanets.githubstars.domain.GithubRepository
-import com.ostanets.githubstars.presentation.diffcallbacks.GithubRepositoryDiffCallback
-import com.ostanets.githubstars.presentation.viewholders.GithubRepositoryViewHolder
 
 class RepositoriesListAdapter : ListAdapter<GithubRepository, GithubRepositoryViewHolder>(
     GithubRepositoryDiffCallback()

@@ -1,4 +1,4 @@
-package com.ostanets.githubstars.presentation.presenters
+package com.ostanets.githubstars.presentation.main
 
 import android.util.Log
 import com.ostanets.githubstars.data.remote.github.GithubApiService
@@ -7,7 +7,6 @@ import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
 import com.ostanets.githubstars.domain.GithubRepository
 import com.ostanets.githubstars.domain.GithubStarsAppRepository
 import com.ostanets.githubstars.domain.GithubUser
-import com.ostanets.githubstars.presentation.views.MainView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +39,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            viewState.startSearch()
+            viewState.setSearchState(MainView.START_SEARCH)
 
             val cacheDataDeferred = async(start = CoroutineStart.LAZY) { loadCachedData(login) }
             val networkDataDeferred = async(start = CoroutineStart.LAZY) {
@@ -92,7 +91,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                 }
             }
 
-            viewState.endSearch()
+            viewState.setSearchState(MainView.END_SEARCH)
 
             cacheUser(newUser)
         }

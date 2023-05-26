@@ -1,4 +1,4 @@
-package com.ostanets.githubstars.presentation.viewholders
+package com.ostanets.githubstars.presentation.main
 
 import android.view.View
 import android.widget.ImageButton
