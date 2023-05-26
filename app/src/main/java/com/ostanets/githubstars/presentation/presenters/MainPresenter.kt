@@ -74,6 +74,8 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                 user?.Repositories?.let {
                     viewState.commitRepositories(it)
                 }
+            } else {
+                viewState.commitRepositories(emptyList())
             }
 
             val newUser = networkDataDeferred.await()
