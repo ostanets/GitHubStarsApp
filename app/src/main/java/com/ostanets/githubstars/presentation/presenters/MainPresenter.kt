@@ -15,6 +15,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @InjectViewState
@@ -39,7 +42,25 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
             val cacheDataDeferred = async(start = CoroutineStart.LAZY) { loadCachedData(login) }
             val networkDataDeferred = async(start = CoroutineStart.LAZY) {
-                loadNetworkData(login)
+                try {
+                    loadNetworkData(login)
+                } catch (e: Exception) {
+                    when (e) {
+                        is HttpException -> {
+                            handleHttpException(e)
+                            null
+                        }
+                        is UnknownHostException -> {
+                            handleNoInternetConnection()
+                            null
+                        }
+                        is SocketTimeoutException -> {
+                            handleNoInternetConnection()
+                            null
+                        }
+                        else -> null
+                    }
+                }
             }
 
             cacheDataDeferred.start()
@@ -65,9 +86,6 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                     viewState.commitRepositories(emptyList())
                     viewState.showError("User hasn't public repositories")
                 }
-            } else {
-                viewState.commitRepositories(emptyList())
-                viewState.showError("User not found")
             }
 
             viewState.endSearch()
@@ -76,14 +94,27 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         }
     }
 
+    private fun handleNoInternetConnection() {
+        viewState.showError("No Internet connection, cache loaded")
+    }
+
+    private fun handleHttpException(e: HttpException) {
+        if (e.code() == 404) {
+            viewState.commitRepositories(emptyList())
+            viewState.showError("User not found")
+        } else {
+            viewState.showError("Unexpected HTTP Exception")
+        }
+    }
+
     private suspend fun initFavouriteStatuses() {
         user?.Repositories?.forEach {
             val favouriteStatus =
-            try {
-                repository.isRepositoryFavourite(it.Id)
-            } catch (e: NullPointerException) {
-                false
-            }
+                try {
+                    repository.isRepositoryFavourite(it.Id)
+                } catch (e: NullPointerException) {
+                    false
+                }
 
             it.Favourite = favouriteStatus
         }
@@ -108,15 +139,11 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         return user?.let { repository.initRepositories(it) }
     }
 
-    private suspend fun loadNetworkData(login: String): GithubUser? {
-        return try {
-            val user = findUser(login)
-            val repositories = findRepositories(login, user)
-            user.Repositories = repositories
-            user
-        } catch (_: Exception) {
-            null
-        }
+    private suspend fun loadNetworkData(login: String): GithubUser {
+        val user = findUser(login)
+        val repositories = findRepositories(login, user)
+        user.Repositories = repositories
+        return user
     }
 
     private suspend fun cacheUser(user: GithubUser?) {
