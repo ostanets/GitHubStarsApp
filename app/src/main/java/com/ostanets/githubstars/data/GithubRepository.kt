@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey
 data class GithubRepository(
     @PrimaryKey val RepositoryId: Long,
     val Name: String,
+    val Favourite: Boolean,
     @ColumnInfo(index = true) val UserId: Long
 )
 
@@ -24,7 +25,7 @@ fun GithubRepository.fromEntity(favourite: Boolean): com.ostanets.githubstars.do
 }
 
 fun com.ostanets.githubstars.domain.GithubRepository.toEntity(): GithubRepository {
-    return GithubRepository(Id, Name, UserId)
+    return GithubRepository(Id, Name, Favourite, UserId)
 }
 
 fun com.ostanets.githubstars.data.remote.github.GithubRepository.toDomain(

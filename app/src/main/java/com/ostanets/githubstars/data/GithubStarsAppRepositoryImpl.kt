@@ -63,20 +63,15 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
 
     override suspend fun getFavourites(): List<GithubRepository>? {
         return githubStarsDao.getFavourites()?.map {
-            it.fromEntity()
+            it.fromEntity(true)
         }
     }
 
-    override suspend fun isFavourite(repositoryId: Long): Boolean {
-        return githubStarsDao.isRepositoryFavourite(repositoryId) != null
-    }
-
     override suspend fun initRepositories(user: GithubUser): GithubUser {
-        val repositories = githubStarsDao.getRepositories(user.Id)?.map {repository ->
-            repository
-                .fromEntity(
-                    isFavourite(repository.RepositoryId)
-                )
+        val repositories = githubStarsDao.getRepositories(user.Id)?.map {
+            it.fromEntity(
+                githubStarsDao.isRepositoryFavourite(it.RepositoryId)
+            )
         }
         user.Repositories = repositories
         return user
@@ -99,10 +94,10 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
     }
 
     override suspend fun addRepositoryToFavourites(repositoryId: Long) {
-        githubStarsDao.addRepositoryToFavourites(FavouriteRepository(repositoryId))
+        githubStarsDao.addRepositoryToFavourites(repositoryId)
     }
 
     override suspend fun removeRepositoryFromFavourites(repositoryId: Long) {
-        githubStarsDao.removeRepositoryFromFavourites(FavouriteRepository(repositoryId))
+        githubStarsDao.removeRepositoryFromFavourites(repositoryId)
     }
 }

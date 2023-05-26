@@ -1,7 +1,6 @@
 package com.ostanets.githubstars.data
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -19,9 +18,6 @@ interface GithubStarsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addStargazer(stargazer: GithubStargazer): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addRepositoryToFavourites(favouriteRepository: FavouriteRepository)
-
     //GET
     @Query("SELECT * FROM `github_users` WHERE userId = :userId")
     suspend fun getUser(userId: Long): GithubUser?
@@ -29,8 +25,8 @@ interface GithubStarsDao {
     @Query("SELECT * FROM `github_users` WHERE UPPER(login) = UPPER(:login)")
     suspend fun getUser(login: String): GithubUser?
 
-    @Query("SELECT RepositoryId FROM `favourite_repositories`")
-    suspend fun getFavourites(): List<Long>
+    @Query("SELECT * FROM `github_repositories` WHERE favourite = 1")
+    suspend fun getFavourites(): List<GithubRepository>?
 
     @Query("SELECT Favourite FROM `github_repositories` WHERE repositoryId = :repositoryId")
     suspend fun isRepositoryFavourite(repositoryId: Long): Boolean
@@ -54,7 +50,6 @@ interface GithubStarsDao {
     @Query("UPDATE `github_repositories` SET favourite = 1 WHERE repositoryId = :repositoryId")
     suspend fun addRepositoryToFavourites(repositoryId: Long)
 
-    //REMOVE
-    @Delete
-    suspend fun removeRepositoryFromFavourites(favouriteRepository: FavouriteRepository)
+    @Query("UPDATE `github_repositories` SET favourite = 0 WHERE repositoryId = :repositoryId")
+    suspend fun removeRepositoryFromFavourites(repositoryId: Long)
 }

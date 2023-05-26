@@ -78,7 +78,14 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private suspend fun initFavouriteStatuses() {
         user?.Repositories?.forEach {
-            it.Favourite = repository.isRepositoryFavourite(it.Id)
+            val favouriteStatus =
+            try {
+                repository.isRepositoryFavourite(it.Id)
+            } catch (e: NullPointerException) {
+                false
+            }
+
+            it.Favourite = favouriteStatus
         }
     }
 
