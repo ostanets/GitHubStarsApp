@@ -1,6 +1,7 @@
 package com.ostanets.githubstars.presentation.main
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -84,18 +85,31 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         when (state) {
             MainView.START_SEARCH -> startSearch()
             MainView.END_SEARCH -> endSearch()
+            MainView.CACHE_LOADED -> cacheLoaded()
         }
     }
 
     private fun endSearch() {
         binding.etSearchOwner.isEnabled = true
         binding.btnSearch.isEnabled = true
+        binding.progressBar.visibility = View.GONE
+        binding.rwRepositoriesList.visibility = View.VISIBLE
     }
 
     private fun startSearch() {
         binding.etSearchOwner.clearFocus()
         binding.etSearchOwner.isEnabled = false
         binding.btnSearch.isEnabled = false
+        binding.rwRepositoriesList.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun cacheLoaded() {
+        binding.etSearchOwner.clearFocus()
+        binding.etSearchOwner.isEnabled = false
+        binding.btnSearch.isEnabled = false
+        binding.progressBar.visibility = View.GONE
+        binding.rwRepositoriesList.visibility = View.VISIBLE
     }
 
     override fun commitRepositories(repositories: List<GithubRepository>) {

@@ -16,5 +16,6 @@ interface MainView: MvpView {
     companion object {
         const val START_SEARCH = "start"
         const val END_SEARCH = "end"
+        const val CACHE_LOADED = "cache loaded"
     }
 }

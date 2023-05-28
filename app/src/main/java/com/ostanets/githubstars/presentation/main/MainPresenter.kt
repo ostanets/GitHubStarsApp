@@ -80,9 +80,11 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                 user = cachedUser
                 user?.Repositories?.let {
                     viewState.commitRepositories(it)
+                    viewState.setSearchState(MainView.CACHE_LOADED)
                 }
             } else {
                 viewState.commitRepositories(emptyList())
+                viewState.setSearchState(MainView.CACHE_LOADED)
             }
 
             val newUser = networkDataDeferred.await()
