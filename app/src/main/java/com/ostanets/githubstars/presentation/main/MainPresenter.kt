@@ -178,6 +178,8 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             when (loadMoreAvailable) {
                 ALLOW_LOAD_MORE -> {
                     user ?: throw Exception("User is not initialized")
+
+                    viewState.setSearchState(MainView.LOAD_MORE_REPOSITORIES)
                     val login = user!!.Login
                     val repositoriesPart = findRepositories(login, user!!)
 
@@ -186,6 +188,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                     }
                     user!!.Repositories.addAll(filteredRepositories)
                     viewState.commitRepositories(user!!.Repositories)
+                    viewState.setSearchState(MainView.END_SEARCH)
 
                     if (filteredRepositories.isEmpty()) {
                         loadMoreAvailable = DISMISS_LOAD_MORE

@@ -86,12 +86,14 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             MainView.START_SEARCH -> startSearch()
             MainView.END_SEARCH -> endSearch()
             MainView.CACHE_LOADED -> cacheLoaded()
+            MainView.LOAD_MORE_REPOSITORIES -> loadMoreRepositories()
         }
     }
 
     private fun endSearch() {
         binding.etSearchOwner.isEnabled = true
         binding.btnSearch.isEnabled = true
+        binding.progressBackground.visibility = View.GONE
         binding.progressBar.visibility = View.GONE
         binding.rwRepositoriesList.visibility = View.VISIBLE
     }
@@ -101,6 +103,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.etSearchOwner.isEnabled = false
         binding.btnSearch.isEnabled = false
         binding.rwRepositoriesList.visibility = View.GONE
+        binding.progressBackground.visibility = View.VISIBLE
         binding.progressBar.visibility = View.VISIBLE
     }
 
@@ -108,8 +111,17 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.etSearchOwner.clearFocus()
         binding.etSearchOwner.isEnabled = false
         binding.btnSearch.isEnabled = false
+        binding.progressBackground.visibility = View.GONE
         binding.progressBar.visibility = View.GONE
         binding.rwRepositoriesList.visibility = View.VISIBLE
+    }
+
+    private fun loadMoreRepositories() {
+        binding.etSearchOwner.clearFocus()
+        binding.etSearchOwner.isEnabled = false
+        binding.btnSearch.isEnabled = false
+        binding.progressBackground.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     override fun commitRepositories(repositories: List<GithubRepository>) {

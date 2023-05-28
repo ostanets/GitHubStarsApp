@@ -5,4 +5,5 @@
     <string name="user_repositories">User repositories</string>
     <string name="add_to_liked">add to liked</string>
     <string name="remove_from_liked">remove from liked</string>
+    <string name="loading_more_repositories">loading more repositories</string>
 </resources>

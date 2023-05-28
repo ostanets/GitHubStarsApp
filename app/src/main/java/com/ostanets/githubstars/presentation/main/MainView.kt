@@ -17,5 +17,6 @@ interface MainView: MvpView {
         const val START_SEARCH = "start"
         const val END_SEARCH = "end"
         const val CACHE_LOADED = "cache loaded"
+        const val LOAD_MORE_REPOSITORIES = "load more repos"
     }
 }
