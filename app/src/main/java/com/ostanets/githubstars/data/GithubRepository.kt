@@ -16,16 +16,16 @@ import androidx.room.PrimaryKey
 data class GithubRepository(
     @PrimaryKey val RepositoryId: Long,
     val Name: String,
-    val Favourite: Boolean,
+    val Favorite: Boolean,
     @ColumnInfo(index = true) val UserId: Long
 )
 
-fun GithubRepository.fromEntity(favourite: Boolean): com.ostanets.githubstars.domain.GithubRepository {
-    return com.ostanets.githubstars.domain.GithubRepository(RepositoryId, Name, favourite, UserId)
+fun GithubRepository.fromEntity(favorite: Boolean): com.ostanets.githubstars.domain.GithubRepository {
+    return com.ostanets.githubstars.domain.GithubRepository(RepositoryId, Name, favorite, UserId)
 }
 
 fun com.ostanets.githubstars.domain.GithubRepository.toEntity(): GithubRepository {
-    return GithubRepository(Id, Name, Favourite, UserId)
+    return GithubRepository(Id, Name, Favorite, UserId)
 }
 
 fun com.ostanets.githubstars.data.remote.github.GithubRepository.toDomain(

@@ -18,9 +18,11 @@ interface GithubStarsAppRepository {
 
     suspend fun isRepositoryExist(repositoryId: Long): Boolean
 
-    suspend fun isRepositoryFavourite(repositoryId: Long): Boolean
+    suspend fun isRepositoryFavorite(repositoryId: Long): Boolean
 
-    suspend fun getFavourites(): List<GithubRepository>?
+    suspend fun getFavorites(): List<GithubRepository>?
+
+    suspend fun getFavorites(userId: Long): List<GithubRepository>?
 
     suspend fun initRepositories(user: GithubUser): GithubUser
 
@@ -31,7 +33,10 @@ interface GithubStarsAppRepository {
 
     suspend fun editRepository(repository: GithubRepository)
 
-    suspend fun addRepositoryToFavourites(repositoryId: Long)
+    suspend fun addRepositoryToFavorites(repositoryId: Long)
 
-    suspend fun removeRepositoryFromFavourites(repositoryId: Long)
+    suspend fun removeRepositoryFromFavorites(repositoryId: Long)
+
+    //DELETE
+    suspend fun deleteRepository(repositoryId: Long)
 }

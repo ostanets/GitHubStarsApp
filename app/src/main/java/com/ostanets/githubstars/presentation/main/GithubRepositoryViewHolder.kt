@@ -13,7 +13,7 @@ class GithubRepositoryViewHolder(binding: ItemRepositoryBinding) : RecyclerView.
     val name: TextView = binding.twRepoName
     val likeButton: ImageButton = binding.btnLike
 
-    fun setFavouriteStatus(status: Boolean) {
+    fun setFavoriteStatus(status: Boolean) {
         if (status) {
             likeButton.setImageResource(R.drawable.baseline_remove_like)
         } else {

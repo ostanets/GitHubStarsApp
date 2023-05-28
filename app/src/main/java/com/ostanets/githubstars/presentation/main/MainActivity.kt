@@ -3,12 +3,13 @@ package com.ostanets.githubstars.presentation.main
 import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.ostanets.githubstars.data.GithubStarsAppDatabase
 import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
 import com.ostanets.githubstars.domain.GithubRepository
-import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.DEFAULT_TYPE
+import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.ITEM_TYPE
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
@@ -50,11 +51,13 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         val rvRepositoriesList = binding.rwRepositoriesList
         repositoriesListAdapter = RepositoriesListAdapter()
 
+        setupOnRVScrollListener()
+
         with(rvRepositoriesList) {
             layoutManager = LinearLayoutManager(binding.root.context)
             adapter = repositoriesListAdapter
             recycledViewPool.setMaxRecycledViews(
-                DEFAULT_TYPE,
+                ITEM_TYPE,
                 MAX_POOL_SIZE
             )
         }
@@ -62,6 +65,19 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         repositoriesListAdapter.onLikeClickListener = {
             mainPresenter.toggleLike(it)
         }
+    }
+
+    private fun setupOnRVScrollListener() {
+        val rvRepositoriesList = binding.rwRepositoriesList
+        val scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1)) {
+                    mainPresenter.loadMoreRepositories()
+                }
+            }
+        }
+        rvRepositoriesList.addOnScrollListener(scrollListener)
     }
 
     override fun setSearchState(state: String) {
@@ -84,7 +100,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     override fun commitRepositories(repositories: List<GithubRepository>) {
         repositoriesListAdapter.submitList(
-            repositories.sortedWith(compareBy( { !it.Favourite }, { it.Name } ))
+            repositories.sortedWith(compareBy ({ !it.Favorite }, { it.Name }))
         )
     }
 

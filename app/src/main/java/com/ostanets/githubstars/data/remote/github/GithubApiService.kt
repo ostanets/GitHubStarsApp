@@ -13,19 +13,25 @@ interface GithubApiService {
     @GET("users/{user}/repos")
     suspend fun listRepos(
         @Path("user") login: String,
-        @Query("pageNumber") pageNumber: Int,
+        @Query("page") pageNumber: Int,
         @Query("per_page") limit: Int
     ): List<GithubRepository>
+
+    @GET("repos/{user}/{repo}")
+    suspend fun getRepo(
+        @Path("user") login: String,
+        @Path("repo") repository: String
+    ): GithubRepository
 
     @GET("{user}/{repo}/stargazers")
     suspend fun listStargazers(
         @Path("user") login: String,
         @Path("repo") repo: String,
-        @Query("pageNumber") pageNumber: Int,
+        @Query("page") pageNumber: Int,
         @Query("per_page") limit: Int
     ): List<GithubRepository>
 
     companion object {
-        const val MAXIMUM_LIMIT = 100
+        const val MAXIMUM_PER_PAGE_LIMIT = 100
     }
 }

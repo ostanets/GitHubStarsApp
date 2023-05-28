@@ -29,6 +29,8 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     }
 
     private var user: GithubUser? = null
+    private var pageNumber = START_PAGE_NUMBER
+    private var loadMoreAvailable = ALLOW_LOAD_MORE
 
     fun getRepositories(inputLogin: String) {
         val login = parseLogin(inputLogin)
@@ -41,6 +43,9 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         CoroutineScope(Dispatchers.Main).launch {
             viewState.setSearchState(MainView.START_SEARCH)
 
+            pageNumber = START_PAGE_NUMBER
+            loadMoreAvailable = ALLOW_LOAD_MORE
+
             val cacheDataDeferred = async(start = CoroutineStart.LAZY) { loadCachedData(login) }
             val networkDataDeferred = async(start = CoroutineStart.LAZY) {
                 try {
@@ -51,14 +56,17 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                             handleHttpException(e)
                             null
                         }
+
                         is UnknownHostException -> {
                             handleNoInternetConnection()
                             null
                         }
+
                         is SocketTimeoutException -> {
                             handleNoInternetConnection()
                             null
                         }
+
                         else -> null
                     }
                 }
@@ -80,10 +88,22 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             val newUser = networkDataDeferred.await()
             if (newUser != null) {
                 user = newUser
-                initFavouriteStatuses()
-                val repositories = user?.Repositories
-                Log.d("TAG", "getRepositories: ${repositories.toString()}")
-                if (!repositories.isNullOrEmpty()) {
+                val repositories = user!!.Repositories
+                val updatedFavorites = getFavorites()
+
+                for (updatedRepo in updatedFavorites) {
+                    val existingRepo = repositories.find { it.Id == updatedRepo.Id }
+
+                    if (existingRepo != null) {
+                        val index = repositories.indexOf(existingRepo)
+                        repositories[index] = updatedRepo
+                    } else {
+                        repositories.add(updatedRepo)
+                    }
+                }
+
+                Log.d("TAG", "getRepositories: $repositories")
+                if (repositories.isNotEmpty()) {
                     viewState.commitRepositories(repositories)
                 } else {
                     viewState.commitRepositories(emptyList())
@@ -110,25 +130,26 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         }
     }
 
-    private suspend fun initFavouriteStatuses() {
+    @Deprecated("Don't use because may not update all of favorites")
+    private suspend fun initFavoriteStatuses() {
         user?.Repositories?.forEach {
-            val favouriteStatus =
+            val favoriteStatus =
                 try {
-                    repository.isRepositoryFavourite(it.Id)
+                    repository.isRepositoryFavorite(it.Id)
                 } catch (e: NullPointerException) {
                     false
                 }
 
-            it.Favourite = favouriteStatus
+            it.Favorite = favoriteStatus
         }
     }
 
     fun toggleLike(githubRepository: GithubRepository) {
         CoroutineScope(Dispatchers.Main).launch {
-            if (githubRepository.Favourite) {
-                repository.removeRepositoryFromFavourites(githubRepository.Id)
+            if (githubRepository.Favorite) {
+                repository.removeRepositoryFromFavorites(githubRepository.Id)
             } else {
-                repository.addRepositoryToFavourites(githubRepository.Id)
+                repository.addRepositoryToFavorites(githubRepository.Id)
             }
 
             user = repository.getUser(githubRepository.UserId)
@@ -144,21 +165,69 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private suspend fun loadNetworkData(login: String): GithubUser {
         val user = findUser(login)
-        val repositories = findRepositories(login, user)
-        user.Repositories = repositories
+
+        val repositoriesPart = findRepositories(login, user)
+        user.Repositories.addAll(repositoriesPart)
         return user
+    }
+
+    fun loadMoreRepositories() {
+        CoroutineScope(Dispatchers.Main).launch {
+            when (loadMoreAvailable) {
+                ALLOW_LOAD_MORE -> {
+                    user ?: throw Exception("User is not initialized")
+                    val login = user!!.Login
+                    val repositoriesPart = findRepositories(login, user!!)
+
+                    val filteredRepositories = repositoriesPart.filter {
+                        user!!.Repositories.none { r -> it.Id == r.Id }
+                    }
+                    user!!.Repositories.addAll(filteredRepositories)
+                    viewState.commitRepositories(user!!.Repositories)
+
+                    if (filteredRepositories.isEmpty()) {
+                        loadMoreAvailable = DISMISS_LOAD_MORE
+                    }
+
+                    Log.d("TAG", "loadMoreRepositories: 1: ${user!!.Repositories.size}")
+                    cacheUser(user)
+                    Log.d("TAG", "loadMoreRepositories: 2: ${user!!.Repositories.size}")
+                }
+            }
+        }
+    }
+
+    private suspend fun getFavorites(): MutableList<GithubRepository> {
+        user ?: throw Exception("User is not initialized")
+        val login = user!!.Login
+        val userId = user!!.Id
+        val favorites = repository.getFavorites(userId)
+        favorites ?: return mutableListOf()
+        val result = mutableListOf<GithubRepository>()
+        favorites.forEach {
+            try {
+                val repo = githubApiService.getRepo(login, it.Name).toDomain(userId)
+                repo.Favorite = true
+                result.add(repo)
+            } catch (e: HttpException) {
+                if (e.code() == 404) {
+                    viewState.showError("Favorite repository ${it.Name} is not longer available")
+                    repository.deleteRepository(it.Id)
+                } else {
+                    viewState.showError("Unexpected HTTP Exception")
+                }
+            }
+        }
+        return result
     }
 
     private suspend fun cacheUser(user: GithubUser?) {
         if (user != null) {
             if (repository.isUserExist(user.Login)) {
                 repository.editUser(user)
-                user.Repositories?.forEach {
-                    if (repository.isRepositoryExist(it.Id)) {
-                        repository.editRepository(it)
-                    } else {
-                        repository.addRepository(it)
-                    }
+                val repositoriesCopy = user.Repositories.toList()
+                repositoriesCopy.forEach {
+                    repository.addRepository(it)
                 }
             } else {
                 repository.addUser(user)
@@ -169,22 +238,17 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     private suspend fun findRepositories(
         login: String,
         user: GithubUser,
-    ): ArrayList<GithubRepository> {
-        val repositories = ArrayList<GithubRepository>()
+    ): MutableList<GithubRepository> {
 
-        var page = 1
-        var repositoriesOnPage: List<GithubRepository>
-        do {
-            repositoriesOnPage = githubApiService.listRepos(
-                login,
-                page++,
-                GithubApiService.MAXIMUM_LIMIT
-            ).map {
-                it.toDomain(user.Id)
-            }
-            repositories.addAll(repositoriesOnPage)
-        } while (repositoriesOnPage.size == 100)
-        return repositories
+        val repositories: List<GithubRepository> = githubApiService.listRepos(
+            login,
+            pageNumber++,
+            GithubApiService.MAXIMUM_PER_PAGE_LIMIT
+        ).map {
+            it.toDomain(user.Id)
+        }
+
+        return repositories.toMutableList()
     }
 
     private suspend fun findUser(login: String): GithubUser {
@@ -197,5 +261,11 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private fun parseLogin(login: String): String {
         return login.trim()
+    }
+
+    companion object {
+        const val START_PAGE_NUMBER = 1
+        const val ALLOW_LOAD_MORE = 2
+        const val DISMISS_LOAD_MORE = 3
     }
 }

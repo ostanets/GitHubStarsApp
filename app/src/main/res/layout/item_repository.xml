@@ -12,6 +12,7 @@
         android:id="@+id/tw_repo_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"

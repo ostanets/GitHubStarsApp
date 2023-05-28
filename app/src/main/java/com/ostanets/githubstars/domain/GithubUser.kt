@@ -4,5 +4,5 @@ data class GithubUser (
     val Id: Long,
     var Login: String,
     var AvatarUrl: String,
-    var Repositories: List<GithubRepository>? = null
+    var Repositories: MutableList<GithubRepository> = mutableListOf()
 )
