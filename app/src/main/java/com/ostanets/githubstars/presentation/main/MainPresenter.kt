@@ -84,7 +84,6 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                 }
             } else {
                 viewState.commitRepositories(emptyList())
-                viewState.setSearchState(MainView.CACHE_LOADED)
             }
 
             val newUser = networkDataDeferred.await()
