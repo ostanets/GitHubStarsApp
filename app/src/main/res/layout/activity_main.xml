@@ -40,7 +40,7 @@
         app:layout_constraintTop_toTopOf="@+id/til_search_owner" />
 
     <TextView
-        android:id="@+id/tw_user_repos"
+        android:id="@+id/tv_repo_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -63,11 +63,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tw_user_repos"
+        app:layout_constraintTop_toBottomOf="@+id/tv_repo_name"
         tools:listitem="@layout/item_repository" />
 
     <ImageView
-        android:id="@+id/progressBackground"
+        android:id="@+id/progress_background"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#99FFFFFF"
@@ -78,11 +78,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tw_user_repos"
+        app:layout_constraintTop_toBottomOf="@+id/tv_repo_name"
         tools:visibility="visible" />
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -91,6 +91,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tw_user_repos"
+        app:layout_constraintTop_toBottomOf="@+id/tv_repo_name"
         tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

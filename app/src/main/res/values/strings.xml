@@ -3,7 +3,12 @@
     <string name="et_search_owner_hint">Repository owner</string>
     <string name="btn_search_text">Search</string>
     <string name="user_repositories">User repositories</string>
-    <string name="add_to_liked">add to liked</string>
-    <string name="remove_from_liked">remove from liked</string>
-    <string name="loading_more_repositories">loading more repositories</string>
+    <string name="add_to_liked">Add to liked</string>
+    <string name="remove_from_liked">Remove from liked</string>
+    <string name="loading_more_repositories">Loading more repositories</string>
+    <string name="come_back_to_search">Come back to search</string>
+    <string name="stars">Stars</string>
+    <string name="display_period">Display period</string>
+    <string name="previous_period">Previous period</string>
+    <string name="next_period">Next period</string>
 </resources>
