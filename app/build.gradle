@@ -81,7 +81,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
     //BAR CHART
-    implementation "com.github.shonlin:clickablehistogram:1.0.2-SNAPSHOT"
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     //ANDROID
     implementation 'androidx.core:core-ktx:1.10.1'

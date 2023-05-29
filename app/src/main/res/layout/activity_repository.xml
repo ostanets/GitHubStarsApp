@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".presentation.main.MainActivity">
+    tools:context=".presentation.repository.RepositoryActivity">
 
     <ImageButton
         android:id="@+id/btn_back"
@@ -91,7 +91,7 @@
         app:layout_constraintStart_toEndOf="@+id/tv_display_period"
         app:layout_constraintTop_toBottomOf="@+id/tv_repo_name" />
 
-    <com.shawnlin.clickablehistogram.ClickableHistogram
+    <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/histogram"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -99,16 +99,10 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        app:columnMargin="15dp"
-        app:columnWidth="35dp"
-        app:columnColor="@color/purple_500"
-        app:axisColor ="@color/black"
-        app:textColor  ="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/btn_favourite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_period"
-        app:textSize="12sp" />
+        app:layout_constraintTop_toBottomOf="@+id/spinner_period" />
 
     <ImageView
         android:id="@+id/progress_background"
