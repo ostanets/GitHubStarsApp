@@ -6,26 +6,26 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [GithubUser::class, GithubRepository::class, GithubStargazer::class],
+@Database(entities = [UserBody::class, RepoBody::class, StargazerBody::class],
     version = 1, exportSchema = false)
 @TypeConverters(LocalDateConverter::class)
-abstract class GithubStarsAppDatabase : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun getGithubStarsDao(): GithubStarsDao
+    abstract fun getGithubStarsDao(): AppDao
 
     companion object {
 
         private const val DATABASE_NAME = "github_stars"
 
         @Volatile
-        private var INSTANCE: GithubStarsAppDatabase? = null
+        private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): GithubStarsAppDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
 
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    GithubStarsAppDatabase::class.java,
+                    AppDatabase::class.java,
                     DATABASE_NAME
                 ).build()
 

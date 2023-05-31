@@ -5,7 +5,7 @@ import com.ostanets.githubstars.data.toDomain
 import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
 import com.ostanets.githubstars.domain.GithubRepository
 import com.ostanets.githubstars.domain.GithubStargazer
-import com.ostanets.githubstars.domain.GithubStarsAppRepository
+import com.ostanets.githubstars.domain.GithubStarsAppRepo
 import com.ostanets.githubstars.domain.GithubUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 
 @InjectViewState
-class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
+class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
     MvpPresenter<RepositoryView>() {
     @Inject
     lateinit var githubApiService: GithubApiService
@@ -84,7 +84,7 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
     }
 
     private suspend fun getCachedRepository(repositoryId: Long): GithubRepository {
-        var cachedRepository = repository.getRepository(repositoryId)
+        var cachedRepository = repository.getRepo(repositoryId)
             ?: throw Exception("User $repositoryId not found")
         cachedRepository = repository.initStargazers(cachedRepository)
         return cachedRepository

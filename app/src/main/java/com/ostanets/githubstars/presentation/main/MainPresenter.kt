@@ -5,7 +5,7 @@ import com.ostanets.githubstars.data.remote.github.GithubApiService
 import com.ostanets.githubstars.data.toDomain
 import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
 import com.ostanets.githubstars.domain.GithubRepository
-import com.ostanets.githubstars.domain.GithubStarsAppRepository
+import com.ostanets.githubstars.domain.GithubStarsAppRepo
 import com.ostanets.githubstars.domain.GithubUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -20,7 +20,7 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 
 @InjectViewState
-class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPresenter<MainView>() {
+class MainPresenter(private val repository: GithubStarsAppRepo) : MvpPresenter<MainView>() {
     @Inject
     lateinit var githubApiService: GithubApiService
 
@@ -136,7 +136,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
         user?.Repositories?.forEach {
             val favoriteStatus =
                 try {
-                    repository.isRepositoryFavorite(it.Id)
+                    repository.isRepoFavorite(it.Id)
                 } catch (e: NullPointerException) {
                     false
                 }
@@ -148,7 +148,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     fun toggleLike(githubRepository: GithubRepository) {
         CoroutineScope(Dispatchers.Main).launch {
             if (githubRepository.Favorite) {
-                repository.removeRepositoryFromFavorites(githubRepository.Id)
+                repository.removeRepoFromFavorites(githubRepository.Id)
             } else {
                 repository.addRepositoryToFavorites(githubRepository.Id)
             }
@@ -161,7 +161,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
 
     private suspend fun loadCachedData(login: String): GithubUser? {
         val user = repository.getUser(login)
-        return user?.let { repository.initRepositories(it) }
+        return user?.let { repository.initRepos(it) }
     }
 
     private suspend fun loadNetworkData(login: String): GithubUser {
@@ -214,7 +214,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
             } catch (e: HttpException) {
                 if (e.code() == 404) {
                     viewState.showError("Favorite repository ${it.Name} is not longer available")
-                    repository.deleteRepository(it.Id)
+                    repository.deleteRepo(it.Id)
                 } else {
                     viewState.showError("Unexpected HTTP Exception")
                 }
@@ -229,7 +229,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                 repository.editUser(user)
                 val repositoriesCopy = user.Repositories.toList()
                 repositoriesCopy.forEach {
-                    repository.addRepository(it)
+                    repository.addRepo(it)
                 }
             } else {
                 repository.addUser(user)

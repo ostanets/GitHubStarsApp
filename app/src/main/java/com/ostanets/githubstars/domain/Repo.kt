@@ -6,11 +6,10 @@ interface Repo {
 
     val name: String
 
-    val ownerId: Long
+    val favourite: Boolean?
 
-    val stargazers: List<GithubStargazer>
+    val ownerId: Long?
 
-    companion object {
-        const val UNDEFINED_ID = -1L
-    }
+    val stargazers: List<Stargazer>
+
 }

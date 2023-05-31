@@ -15,8 +15,8 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.ostanets.githubstars.R
-import com.ostanets.githubstars.data.GithubStarsAppDatabase
-import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
+import com.ostanets.githubstars.data.AppDatabase
+import com.ostanets.githubstars.data.AppRepoImpl
 import com.ostanets.githubstars.databinding.ActivityRepositoryBinding
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
@@ -33,9 +33,9 @@ class RepositoryActivity : MvpAppCompatActivity(), RepositoryView {
 
     @ProvidePresenter
     fun provideRepositoryPresenter(): RepositoryPresenter {
-        val database = GithubStarsAppDatabase.getDatabase(this)
+        val database = AppDatabase.getDatabase(this)
         val dao = database.getGithubStarsDao()
-        val repository = GithubStarsAppRepositoryImpl(dao)
+        val repository = AppRepoImpl(dao)
         return RepositoryPresenter(repository)
     }
 

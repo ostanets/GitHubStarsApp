@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.ostanets.githubstars.data.GithubStarsAppDatabase
-import com.ostanets.githubstars.data.GithubStarsAppRepositoryImpl
+import com.ostanets.githubstars.data.AppDatabase
+import com.ostanets.githubstars.data.AppRepoImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
 import com.ostanets.githubstars.domain.GithubRepository
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.ITEM_TYPE
@@ -26,9 +26,9 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     @ProvidePresenter
     fun provideMainPresenter(): MainPresenter {
-        val database = GithubStarsAppDatabase.getDatabase(this)
+        val database = AppDatabase.getDatabase(this)
         val dao = database.getGithubStarsDao()
-        val repository = GithubStarsAppRepositoryImpl(dao)
+        val repository = AppRepoImpl(dao)
         return MainPresenter(repository)
     }
 
