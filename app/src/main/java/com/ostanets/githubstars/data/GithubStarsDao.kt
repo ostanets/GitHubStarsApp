@@ -59,4 +59,7 @@ interface GithubStarsDao {
     //DELETE
     @Query("DELETE FROM `github_repositories` WHERE repositoryId = :repositoryId")
     suspend fun deleteRepository(repositoryId: Long)
+
+    @Query("DELETE FROM `github_repositories_stargazers` WHERE repositoryId = :repositoryId")
+    suspend fun clearStargazers(repositoryId: Long)
 }

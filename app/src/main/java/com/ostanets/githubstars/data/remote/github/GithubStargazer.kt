@@ -1,8 +1,8 @@
 package com.ostanets.githubstars.data.remote.github
 
-import org.threeten.bp.LocalDateTime
+import com.squareup.moshi.Json
 
 data class GithubStargazer(
-    val UserId: Long,
-    val StarredAt: LocalDateTime
+    @Json(name = "user") val User: GithubUser,
+    @Json(name = "starred_at") val StarredAt: String
 )

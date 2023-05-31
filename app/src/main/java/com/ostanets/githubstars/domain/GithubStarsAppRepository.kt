@@ -14,6 +14,8 @@ interface GithubStarsAppRepository {
 
     suspend fun getUser(login: String): GithubUser?
 
+    suspend fun getRepository(repositoryId: Long): GithubRepository?
+
     suspend fun isUserExist(login: String): Boolean
 
     suspend fun isRepositoryExist(repositoryId: Long): Boolean
@@ -39,4 +41,6 @@ interface GithubStarsAppRepository {
 
     //DELETE
     suspend fun deleteRepository(repositoryId: Long)
+
+    suspend fun clearStargazers(repositoryId: Long)
 }

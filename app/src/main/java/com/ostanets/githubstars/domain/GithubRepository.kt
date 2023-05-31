@@ -6,5 +6,5 @@ data class GithubRepository(
     var Name: String,
     var Favorite: Boolean,
     var UserId: Long,
-    var Stargazers: List<GithubStargazer>? = null
+    var Stargazers: MutableList<GithubStargazer> = mutableListOf()
 )

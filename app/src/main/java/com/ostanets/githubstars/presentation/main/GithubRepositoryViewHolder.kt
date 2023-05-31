@@ -16,8 +16,10 @@ class GithubRepositoryViewHolder(binding: ItemRepositoryBinding) : RecyclerView.
     fun setFavoriteStatus(status: Boolean) {
         if (status) {
             likeButton.setImageResource(R.drawable.baseline_remove_like)
+            likeButton.contentDescription = view.context.getString(R.string.remove_from_liked)
         } else {
             likeButton.setImageResource(R.drawable.baseline_add_like)
+            likeButton.contentDescription = view.context.getString(R.string.add_to_liked)
         }
     }
 }

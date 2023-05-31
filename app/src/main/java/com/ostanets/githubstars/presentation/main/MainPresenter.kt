@@ -193,9 +193,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
                         loadMoreAvailable = DISMISS_LOAD_MORE
                     }
 
-                    Log.d("TAG", "loadMoreRepositories: 1: ${user!!.Repositories.size}")
                     cacheUser(user)
-                    Log.d("TAG", "loadMoreRepositories: 2: ${user!!.Repositories.size}")
                 }
             }
         }
@@ -256,7 +254,7 @@ class MainPresenter(private val repository: GithubStarsAppRepository) : MvpPrese
     }
 
     private suspend fun findUser(login: String): GithubUser {
-        return githubApiService.findUser(login).toDomain()
+        return githubApiService.getUser(login).toDomain()
     }
 
     private fun isValidLogin(login: String): Boolean {

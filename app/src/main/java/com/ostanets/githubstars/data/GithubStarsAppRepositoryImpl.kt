@@ -13,8 +13,8 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
             user.Repositories.forEach { repository ->
                 addRepository(repository)
 
-                if (!repository.Stargazers.isNullOrEmpty()) {
-                    repository.Stargazers!!.forEach { stargazer ->
+                if (repository.Stargazers.isNotEmpty()) {
+                    repository.Stargazers.forEach { stargazer ->
                         addStargazer(stargazer)
                     }
                 }
@@ -47,6 +47,12 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
 
     override suspend fun getUser(login: String): GithubUser? {
         return githubStarsDao.getUser(login)?.fromEntity()
+    }
+
+    override suspend fun getRepository(repositoryId: Long): GithubRepository? {
+        return githubStarsDao.getRepository(repositoryId)?.fromEntity(
+            githubStarsDao.isRepositoryFavorite(repositoryId)
+        )
     }
 
     override suspend fun isUserExist(login: String): Boolean {
@@ -87,8 +93,12 @@ class GithubStarsAppRepositoryImpl(private val githubStarsDao: GithubStarsDao) :
         val stargazers = githubStarsDao.getStargazers(repository.Id)?.map {
             it.fromEntity()
         }
-        repository.Stargazers = stargazers
+        repository.Stargazers = stargazers as MutableList<GithubStargazer>
         return repository
+    }
+
+    override suspend fun clearStargazers(repositoryId: Long) {
+        githubStarsDao.clearStargazers(repositoryId)
     }
 
     override suspend fun editUser(user: GithubUser) {

@@ -87,6 +87,7 @@
         android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:entries="@array/period_variants"
         app:layout_constraintEnd_toEndOf="@+id/tv_repo_name"
         app:layout_constraintStart_toEndOf="@+id/tv_display_period"
         app:layout_constraintTop_toBottomOf="@+id/tv_repo_name" />
@@ -103,34 +104,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner_period" />
-
-    <ImageView
-        android:id="@+id/progress_background"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#99FFFFFF"
-        android:clickable="true"
-        android:contentDescription="@string/loading_more_repositories"
-        android:focusable="true"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/histogram"
-        app:layout_constraintEnd_toEndOf="@+id/histogram"
-        app:layout_constraintStart_toStartOf="@+id/histogram"
-        app:layout_constraintTop_toTopOf="@+id/histogram"
-        tools:visibility="visible" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminateTint="@color/purple_200"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_background"
-        app:layout_constraintEnd_toEndOf="@+id/progress_background"
-        app:layout_constraintStart_toStartOf="@+id/progress_background"
-        app:layout_constraintTop_toTopOf="@+id/progress_background"
-        tools:visibility="visible" />
 
     <ImageButton
         android:id="@+id/arr_left"
@@ -166,5 +139,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btn_favourite"
         app:srcCompat="@drawable/baseline_arrow_right_24" />
+
+    <ImageView
+        android:id="@+id/progress_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFFFFF"
+        android:clickable="true"
+        android:contentDescription="@string/loading_more_repositories"
+        android:focusable="true"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/purple_200"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_background"
+        app:layout_constraintEnd_toEndOf="@+id/progress_background"
+        app:layout_constraintStart_toStartOf="@+id/progress_background"
+        app:layout_constraintTop_toTopOf="@+id/progress_background"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

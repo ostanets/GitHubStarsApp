@@ -12,6 +12,7 @@ import com.ostanets.githubstars.databinding.ActivityMainBinding
 import com.ostanets.githubstars.domain.GithubRepository
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.ITEM_TYPE
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
+import com.ostanets.githubstars.presentation.repository.RepositoryActivity
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -61,6 +62,11 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 ITEM_TYPE,
                 MAX_POOL_SIZE
             )
+        }
+
+        repositoriesListAdapter.onRepositoryClickListener = {
+            val intent = RepositoryActivity.newIntentShowRepository(it.Id, this)
+            startActivity(intent)
         }
 
         repositoriesListAdapter.onLikeClickListener = {

@@ -8,7 +8,13 @@
     <string name="loading_more_repositories">Loading more repositories</string>
     <string name="come_back_to_search">Come back to search</string>
     <string name="stars">Stars</string>
-    <string name="display_period">Display period</string>
+    <string name="display_period">Bar period</string>
     <string name="previous_period">Previous period</string>
     <string name="next_period">Next period</string>
+
+    <string-array name="period_variants">
+        <item>Day</item>
+        <item>Month</item>
+        <item>Year</item>
+    </string-array>
 </resources>
