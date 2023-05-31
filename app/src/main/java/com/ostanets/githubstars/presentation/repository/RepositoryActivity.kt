@@ -46,9 +46,16 @@ class RepositoryActivity : MvpAppCompatActivity(), RepositoryView {
         setContentView(binding.root)
 
         setupBackButton()
+        setupNextButton()
         setupBarChart()
 
         repositoryPresenter.getRepository(repositoryId)
+    }
+
+    private fun setupNextButton() {
+        binding.arrRight.setOnClickListener {
+            repositoryPresenter.nextChartPage()
+        }
     }
 
     private fun setupBackButton() {

@@ -29,6 +29,8 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
 
     private var user: GithubUser? = null
     private var repo: GithubRepository? = null
+    private var groupType = GroupType.DAILY
+    private var chartPageNumber = CHART_START_PAGE_NUMBER
     private var pageNumber = START_PAGE_NUMBER
     private var loadMoreAvailable = ALLOW_LOAD_MORE
 
@@ -96,12 +98,7 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
         viewState.setOwner(user!!.Login)
         viewState.setRepository(repo!!.Name)
         viewState.setStarsCount(repo!!.Stargazers.size)
-        viewState.commitStargazers(
-            StargazersChartHelper.getBars(
-                repo!!.Stargazers,
-                GroupType.DAILY
-            )
-        )
+        nextChartPage()
         viewState.setFavorite(repo!!.Favorite)
         viewState.hideProgressBar()
     }
@@ -127,29 +124,87 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
         return stargazers.toMutableList()
     }
 
-    fun loadMoreStargazers(groupType: GroupType) {
-        CoroutineScope(Dispatchers.Main).launch {
+    fun nextChartPage() {
+        var nextPosition = chartPageNumber * CHART_BARS_COUNT
+        if (nextPosition + CHART_BARS_COUNT >= repo!!.Stargazers.size) {
             when (loadMoreAvailable) {
                 ALLOW_LOAD_MORE -> {
-                    val stargazersPart = findStargazers()
-                    val filteredStargazers = stargazersPart.filter {
-                        repo!!.Stargazers.none { r -> it.User.Id == r.User.Id }
+                    CoroutineScope(Dispatchers.Main).launch {
+                        loadMoreStargazers(groupType)
                     }
-
-                    repo!!.Stargazers.addAll(filteredStargazers)
-                    viewState.commitStargazers(
-                        StargazersChartHelper.getBars(
-                            repo!!.Stargazers,
-                            groupType
-                        )
-                    )
-
-                    if (filteredStargazers.isEmpty()) {
-                        loadMoreAvailable = DISMISS_LOAD_MORE
+                    if (nextPosition >= repo!!.Stargazers.size) {
+                        nextPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
                     }
-
-                    cacheRepository(repo)
                 }
+
+                DISMISS_LOAD_MORE -> {
+                    if (nextPosition >= repo!!.Stargazers.size) {
+                        nextPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                    }
+                }
+            }
+        }
+
+
+        val result = repo!!.Stargazers
+            .slice(nextPosition .. nextPosition + CHART_BARS_COUNT)
+        viewState.commitStargazers(
+            StargazersChartHelper.getBars(
+                result,
+                groupType
+            )
+        )
+        chartPageNumber++
+    }
+
+    fun prevChartPage() {
+        var prevPosition = chartPageNumber * CHART_BARS_COUNT
+        when (loadMoreAvailable) {
+            ALLOW_LOAD_MORE -> {
+                CoroutineScope(Dispatchers.Main).launch {
+                    loadMoreStargazers(groupType)
+                }
+                if (prevPosition >= repo!!.Stargazers.size) {
+                    prevPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                }
+            }
+
+            DISMISS_LOAD_MORE -> {
+                if (prevPosition >= repo!!.Stargazers.size) {
+                    prevPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                }
+            }
+        }
+        for (i in prevPosition until prevPosition + CHART_BARS_COUNT)
+            viewState.commitStargazers(
+                StargazersChartHelper.getBars(
+                    repo!!.Stargazers,
+                    groupType
+                )
+            )
+    }
+
+    private suspend fun loadMoreStargazers(groupType: GroupType) {
+        when (loadMoreAvailable) {
+            ALLOW_LOAD_MORE -> {
+                val stargazersPart = findStargazers()
+                val filteredStargazers = stargazersPart.filter {
+                    repo!!.Stargazers.none { r -> it.User.Id == r.User.Id }
+                }
+
+                repo!!.Stargazers.addAll(filteredStargazers)
+                viewState.commitStargazers(
+                    StargazersChartHelper.getBars(
+                        repo!!.Stargazers,
+                        groupType
+                    )
+                )
+
+                if (filteredStargazers.isEmpty()) {
+                    loadMoreAvailable = DISMISS_LOAD_MORE
+                }
+
+                cacheRepository(repo)
             }
         }
     }
@@ -165,8 +220,10 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepository) :
     }
 
     companion object {
+        const val CHART_START_PAGE_NUMBER = 0
         const val START_PAGE_NUMBER = 1
         const val ALLOW_LOAD_MORE = 2
         const val DISMISS_LOAD_MORE = 3
+        const val CHART_BARS_COUNT = 5
     }
 }
