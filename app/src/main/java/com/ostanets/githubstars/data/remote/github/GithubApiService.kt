@@ -9,20 +9,20 @@ interface GithubApiService {
     @GET("users/{user}")
     suspend fun getUser(
         @Path("user") login: String
-    ): GithubUser
+    ): UserBody
 
     @GET("users/{user}/repos")
     suspend fun listRepos(
         @Path("user") login: String,
         @Query("page") pageNumber: Int,
         @Query("per_page") limit: Int
-    ): List<GithubRepository>
+    ): List<RepoBody>
 
     @GET("repos/{user}/{repo}")
     suspend fun getRepo(
         @Path("user") login: String,
         @Path("repo") repository: String
-    ): GithubRepository
+    ): RepoBody
 
     @Headers("Accept: application/vnd.github.star+json")
     @GET("repos/{user}/{repo}/stargazers")
@@ -31,7 +31,7 @@ interface GithubApiService {
         @Path("repo") repo: String,
         @Query("page") pageNumber: Int,
         @Query("per_page") limit: Int
-    ): List<GithubStargazer>
+    ): List<StargazerBody>
 
     companion object {
         const val MAXIMUM_PER_PAGE_LIMIT = 100

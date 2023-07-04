@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ostanets.githubstars.databinding.ItemRepositoryBinding
-import com.ostanets.githubstars.domain.GithubRepository
+import com.ostanets.githubstars.domain.Repo
 
-class RepositoriesListAdapter : ListAdapter<GithubRepository, GithubRepositoryViewHolder>(
+class RepositoriesListAdapter : ListAdapter<Repo, GithubRepositoryViewHolder>(
     GithubRepositoryDiffCallback()
 ) {
-    var onRepositoryLongClickListener: ((GithubRepository) -> Unit)? = null
-    var onRepositoryClickListener: ((GithubRepository) -> Unit)? = null
-    var onLikeClickListener: ((GithubRepository) -> Unit)? = null
+    var onRepositoryLongClickListener: ((Repo) -> Unit)? = null
+    var onRepositoryClickListener: ((Repo) -> Unit)? = null
+    var onLikeClickListener: ((Repo) -> Unit)? = null
 
     override fun getItemViewType(position: Int): Int {
         return ITEM_TYPE
@@ -29,8 +29,8 @@ class RepositoriesListAdapter : ListAdapter<GithubRepository, GithubRepositoryVi
     override fun onBindViewHolder(holder: GithubRepositoryViewHolder, position: Int) {
         val repository = getItem(position)
 
-        holder.name.text = repository.Name
-        holder.setFavoriteStatus(repository.Favorite)
+        holder.name.text = repository.name
+        repository.favourite?.let { holder.setFavoriteStatus(it) }
 
         holder.view.setOnLongClickListener {
             onRepositoryLongClickListener?.invoke(repository)

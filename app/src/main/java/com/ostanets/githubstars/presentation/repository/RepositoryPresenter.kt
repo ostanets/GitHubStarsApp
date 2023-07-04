@@ -1,12 +1,12 @@
 package com.ostanets.githubstars.presentation.repository
 
+import com.ostanets.githubstars.data.RepoBody
 import com.ostanets.githubstars.data.remote.github.GithubApiService
-import com.ostanets.githubstars.data.toDomain
 import com.ostanets.githubstars.di.DaggerGithubNetworkComponent
-import com.ostanets.githubstars.domain.GithubRepository
-import com.ostanets.githubstars.domain.GithubStargazer
-import com.ostanets.githubstars.domain.GithubStarsAppRepo
-import com.ostanets.githubstars.domain.GithubUser
+import com.ostanets.githubstars.domain.AppRepo
+import com.ostanets.githubstars.domain.Repo
+import com.ostanets.githubstars.domain.Stargazer
+import com.ostanets.githubstars.domain.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 
 @InjectViewState
-class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
+class RepositoryPresenter(private val repository: AppRepo) :
     MvpPresenter<RepositoryView>() {
     @Inject
     lateinit var githubApiService: GithubApiService
@@ -27,8 +27,8 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
         DaggerGithubNetworkComponent.create().inject(this)
     }
 
-    private var user: GithubUser? = null
-    private var repo: GithubRepository? = null
+    private var user: User? = null
+    private var repo: Repo? = null
     private var groupType = GroupType.DAILY
     private var chartPageNumber = CHART_START_PAGE_NUMBER
     private var pageNumber = START_PAGE_NUMBER
@@ -37,7 +37,7 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
     fun getRepository(repositoryId: Long) {
         CoroutineScope(Dispatchers.Main).launch {
             repo = getCachedRepository(repositoryId)
-            user = getCachedUser(repo!!.UserId)
+            user = getCachedUser(repo!!.ownerId!!)
             sendDataToActivity()
 
             val newRepo = try {
@@ -83,70 +83,65 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
         }
     }
 
-    private suspend fun getCachedRepository(repositoryId: Long): GithubRepository {
+    private suspend fun getCachedRepository(repositoryId: Long): Repo {
         var cachedRepository = repository.getRepo(repositoryId)
             ?: throw Exception("User $repositoryId not found")
         cachedRepository = repository.initStargazers(cachedRepository)
         return cachedRepository
     }
 
-    private suspend fun getCachedUser(userId: Long): GithubUser {
+    private suspend fun getCachedUser(userId: Long): User {
         return repository.getUser(userId) ?: throw Exception("User $userId not found")
     }
 
     private fun sendDataToActivity() {
-        viewState.setOwner(user!!.Login)
-        viewState.setRepository(repo!!.Name)
-        viewState.setStarsCount(repo!!.Stargazers.size)
+        viewState.setOwner(user!!.login)
+        viewState.setRepository(repo!!.name)
+        viewState.setStarsCount(repo!!.stargazers.size)
         nextChartPage()
-        viewState.setFavorite(repo!!.Favorite)
+        viewState.setFavorite(repo!!.favourite!!)
         viewState.hideProgressBar()
     }
 
-    private suspend fun getNetworkRepository(): GithubRepository {
-        val networkRepository = githubApiService.getRepo(user!!.Login, repo!!.Name)
-            .toDomain(user!!.Id)
-        networkRepository.Stargazers = findStargazers()
+    private suspend fun getNetworkRepository(): Repo {
+        val networkRepository = githubApiService.getRepo(user!!.login, repo!!.name)
+        networkRepository.stargazers = findStargazers()
         return networkRepository
     }
 
-    private suspend fun findStargazers(): MutableList<GithubStargazer> {
+    private suspend fun findStargazers(): List<Stargazer> {
 
-        val stargazers: List<GithubStargazer> = githubApiService.listStargazers(
-            user!!.Login,
-            repo!!.Name,
+        return githubApiService.listStargazers(
+            user!!.login,
+            repo!!.name,
             pageNumber++,
             GithubApiService.MAXIMUM_PER_PAGE_LIMIT
-        ).map {
-            it.toDomain(repo!!.Id)
-        }
-
-        return stargazers.toMutableList()
+        )
     }
 
     fun nextChartPage() {
         var nextPosition = chartPageNumber * CHART_BARS_COUNT
-        if (nextPosition + CHART_BARS_COUNT >= repo!!.Stargazers.size) {
+        if (nextPosition + CHART_BARS_COUNT >= repo!!.stargazers.size) {
             when (loadMoreAvailable) {
                 ALLOW_LOAD_MORE -> {
                     CoroutineScope(Dispatchers.Main).launch {
                         loadMoreStargazers(groupType)
                     }
-                    if (nextPosition >= repo!!.Stargazers.size) {
-                        nextPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                    if (nextPosition >= repo!!.stargazers.size) {
+                        nextPosition = repo!!.stargazers.size - CHART_BARS_COUNT - 1
                     }
                 }
 
                 DISMISS_LOAD_MORE -> {
-                    if (nextPosition >= repo!!.Stargazers.size) {
-                        nextPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                    if (nextPosition >= repo!!.stargazers.size) {
+                        nextPosition = repo!!.stargazers.size - CHART_BARS_COUNT - 1
                     }
                 }
             }
         }
 
 
-        val result = repo!!.Stargazers
+        val result = repo!!.stargazers
             .slice(nextPosition .. nextPosition + CHART_BARS_COUNT)
         viewState.commitStargazers(
             StargazersChartHelper.getBars(
@@ -164,21 +159,21 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
                 CoroutineScope(Dispatchers.Main).launch {
                     loadMoreStargazers(groupType)
                 }
-                if (prevPosition >= repo!!.Stargazers.size) {
-                    prevPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                if (prevPosition >= repo!!.stargazers.size) {
+                    prevPosition = repo!!.stargazers.size - CHART_BARS_COUNT - 1
                 }
             }
 
             DISMISS_LOAD_MORE -> {
-                if (prevPosition >= repo!!.Stargazers.size) {
-                    prevPosition = repo!!.Stargazers.size - CHART_BARS_COUNT - 1
+                if (prevPosition >= repo!!.stargazers.size) {
+                    prevPosition = repo!!.stargazers.size - CHART_BARS_COUNT - 1
                 }
             }
         }
         for (i in prevPosition until prevPosition + CHART_BARS_COUNT)
             viewState.commitStargazers(
                 StargazersChartHelper.getBars(
-                    repo!!.Stargazers,
+                    repo!!.stargazers,
                     groupType
                 )
             )
@@ -189,13 +184,18 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
             ALLOW_LOAD_MORE -> {
                 val stargazersPart = findStargazers()
                 val filteredStargazers = stargazersPart.filter {
-                    repo!!.Stargazers.none { r -> it.User.Id == r.User.Id }
+                    repo!!.stargazers.none { r -> it.user.id == r.user.id }
                 }
 
-                repo!!.Stargazers.addAll(filteredStargazers)
+                val summaryStargazers = mutableListOf<Stargazer>()
+                summaryStargazers.addAll(repo!!.stargazers)
+                summaryStargazers.addAll(filteredStargazers)
+
+                (repo as RepoBody).stargazers = (summaryStargazers)
+
                 viewState.commitStargazers(
                     StargazersChartHelper.getBars(
-                        repo!!.Stargazers,
+                        repo!!.stargazers,
                         groupType
                     )
                 )
@@ -209,11 +209,11 @@ class RepositoryPresenter(private val repository: GithubStarsAppRepo) :
         }
     }
 
-    private suspend fun cacheRepository(repo: GithubRepository?) {
+    private suspend fun cacheRepository(repo: Repo?) {
         if (repo != null) {
-            repository.clearStargazers(repo.Id)
-            repo.Stargazers.forEach {
-                if (!repository.isUserExist(it.User.Login)) repository.addUser(it.User)
+            repository.clearStargazers(repo.id)
+            repo.stargazers.forEach {
+                if (!repository.isUserExist(it.user.login)) repository.addUser(it.user)
                 repository.addStargazer(it)
             }
         }

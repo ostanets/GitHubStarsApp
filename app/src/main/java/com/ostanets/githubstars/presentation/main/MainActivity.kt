@@ -9,7 +9,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.ostanets.githubstars.data.AppDatabase
 import com.ostanets.githubstars.data.AppRepoImpl
 import com.ostanets.githubstars.databinding.ActivityMainBinding
-import com.ostanets.githubstars.domain.GithubRepository
+import com.ostanets.githubstars.domain.Repo
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.ITEM_TYPE
 import com.ostanets.githubstars.presentation.main.RepositoriesListAdapter.Companion.MAX_POOL_SIZE
 import com.ostanets.githubstars.presentation.repository.RepositoryActivity
@@ -65,7 +65,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
 
         repositoriesListAdapter.onRepositoryClickListener = {
-            val intent = RepositoryActivity.newIntentShowRepository(it.Id, this)
+            val intent = RepositoryActivity.newIntentShowRepository(it.id, this)
             startActivity(intent)
         }
 
@@ -130,9 +130,9 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    override fun commitRepositories(repositories: List<GithubRepository>) {
+    override fun commitRepositories(repositories: List<Repo>) {
         repositoriesListAdapter.submitList(
-            repositories.sortedWith(compareBy ({ !it.Favorite }, { it.Name }))
+            repositories.sortedWith(compareBy ({ it.favourite == false }, { it.name }))
         )
     }
 

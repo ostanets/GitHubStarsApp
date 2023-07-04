@@ -1,18 +1,21 @@
 package com.ostanets.githubstars.data
 
-import com.ostanets.githubstars.domain.GithubStarsAppRepo
+import com.ostanets.githubstars.domain.AppRepo
+import com.ostanets.githubstars.domain.Repo
+import com.ostanets.githubstars.domain.Stargazer
 import com.ostanets.githubstars.domain.User
 
 class AppRepoImpl(private val appDao: AppDao) :
-    GithubStarsAppRepo {
+    AppRepo {
     override suspend fun addUser(user: User): Long {
-        val insertedId = appDao.addUser(user.toEntity())
-        if (user.Repositories.isNotEmpty()) {
-            user.Repositories.forEach { repository ->
-                addRepo(repository)
+        user as UserBody
+        val insertedId = appDao.addUser(user)
+        if (user.repos.isNotEmpty()) {
+            user.repos.forEach { repo ->
+                addRepo(repo)
 
-                if (repository.Stargazers.isNotEmpty()) {
-                    repository.Stargazers.forEach { stargazer ->
+                if (repo.stargazers.isNotEmpty()) {
+                    repo.stargazers.forEach { stargazer ->
                         addStargazer(stargazer)
                     }
                 }
@@ -21,101 +24,93 @@ class AppRepoImpl(private val appDao: AppDao) :
         return insertedId
     }
 
-    override suspend fun addRepo(repository: GithubRepository): Long {
-        return appDao.addRepository(repository.toEntity())
+    override suspend fun addRepo(repo: Repo): Long {
+        repo as RepoBody
+        return appDao.addRepo(repo)
     }
 
-    override suspend fun addStargazer(stargazer: GithubStargazer): Long {
-        return appDao.addStargazer(stargazer.toEntity())
+    override suspend fun addStargazer(stargazer: Stargazer): Long {
+        stargazer as StargazerBody
+        return appDao.addStargazer(stargazer)
     }
 
-    override suspend fun getUser(userId: Long): GithubUser? {
-        var user = appDao.getUser(userId)?.fromEntity()
+    override suspend fun getUser(userId: Long): User? {
+        var user = appDao.getUser(userId)
 
-        user = user?.let { initRepos(it) }
+        user = user?.let { initRepos(it) as UserBody }
 
-        val initialedRepositories = user?.Repositories?.map { repository ->
-            initStargazers(repository)
+        val initialedRepos = user?.repos?.map { repo ->
+            initStargazers(repo)
         }
 
-        user?.Repositories = initialedRepositories as MutableList<GithubRepository>
+        initialedRepos?.let { user?.repos = it }
 
         return user
     }
 
-    override suspend fun getUser(login: String): GithubUser? {
-        return appDao.getUser(login)?.fromEntity()
+    override suspend fun getUser(login: String): User? {
+        return appDao.getUser(login)
     }
 
-    override suspend fun getRepo(repositoryId: Long): GithubRepository? {
-        return appDao.getRepository(repositoryId)?.fromEntity(
-            appDao.isRepositoryFavorite(repositoryId)
-        )
+    override suspend fun getRepo(repoId: Long): Repo? {
+        return appDao.getRepo(repoId)
     }
 
     override suspend fun isUserExist(login: String): Boolean {
         return appDao.getUser(login) != null
     }
 
-    override suspend fun isRepoExist(repositoryId: Long): Boolean {
-        return appDao.getRepository(repositoryId) != null
+    override suspend fun isRepoExist(repoId: Long): Boolean {
+        return appDao.getRepo(repoId) != null
     }
 
-    override suspend fun isRepoFavorite(repositoryId: Long): Boolean {
-        return appDao.isRepositoryFavorite(repositoryId)
+    override suspend fun isRepoFavorite(repoId: Long): Boolean {
+        return appDao.isRepoFavorite(repoId)
     }
 
-    override suspend fun getFavorites(): List<GithubRepository>? {
-        return appDao.getFavorites()?.map {
-            it.fromEntity(true)
-        }
+    override suspend fun getFavorites(): List<Repo>? {
+        return appDao.getFavorites()
     }
 
-    override suspend fun getFavorites(userId: Long): List<GithubRepository>? {
-        return appDao.getFavorites(userId)?.map {
-            it.fromEntity(true)
-        }
+    override suspend fun getFavorites(userId: Long): List<Repo>? {
+        return appDao.getFavorites(userId)
     }
 
-    override suspend fun initRepos(user: GithubUser): GithubUser {
-        val repositories = appDao.getRepositories(user.Id)?.map {
-            it.fromEntity(
-                appDao.isRepositoryFavorite(it.RepositoryId)
-            )
-        }
-        user.Repositories = repositories as MutableList<GithubRepository>
+    override suspend fun initRepos(user: User): User {
+        user as UserBody
+        val repos = appDao.getRepos(user.id)
+        repos?.let { user.repos = it }
         return user
     }
 
-    override suspend fun initStargazers(repository: GithubRepository): GithubRepository {
-        val stargazers = appDao.getStargazers(repository.Id)?.map {
-            it.fromEntity()
-        }
-        repository.Stargazers = stargazers as MutableList<GithubStargazer>
-        return repository
+    override suspend fun initStargazers(repo: Repo): Repo {
+        repo as RepoBody
+        val stargazers = appDao.getStargazers(repo.id)
+        stargazers?.let { repo.stargazers = it }
+        return repo
     }
 
-    override suspend fun clearStargazers(repositoryId: Long) {
-        appDao.clearStargazers(repositoryId)
+    override suspend fun clearStargazers(repoId: Long) {
+        appDao.clearStargazers(repoId)
     }
 
-    override suspend fun editUser(user: GithubUser) {
-        appDao.editUser(user.Id, user.Login, user.AvatarUrl)
+    override suspend fun editUser(user: User) {
+        appDao.editUser(user.id, user.login, user.avatarUrl)
     }
 
-    override suspend fun editRepository(repository: GithubRepository) {
-        appDao.editRepository(repository.Id, repository.Name)
+    override suspend fun editRepo(repo: Repo) {
+        appDao.editRepo(repo.id, repo.name)
     }
 
-    override suspend fun addRepositoryToFavorites(repositoryId: Long) {
-        appDao.addRepositoryToFavorites(repositoryId)
+    override suspend fun addRepoToFavorites(repoId: Long) {
+        appDao.addRepoToFavorites(repoId)
     }
 
-    override suspend fun removeRepoFromFavorites(repositoryId: Long) {
-        appDao.removeRepositoryFromFavorites(repositoryId)
+    override suspend fun removeRepoFromFavorites(repoId: Long) {
+        appDao.removeRepoFromFavorites(repoId)
     }
 
-    override suspend fun deleteRepo(repositoryId: Long) {
-        appDao.deleteRepository(repositoryId)
+    override suspend fun deleteRepo(repoId: Long) {
+        appDao.deleteRepo(repoId)
     }
 }

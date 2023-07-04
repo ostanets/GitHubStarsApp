@@ -13,7 +13,7 @@ interface AppDao {
     suspend fun addUser(user: UserBody): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addRepository(repository: RepoBody): Long
+    suspend fun addRepo(repository: RepoBody): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addStargazer(stargazer: StargazerBody): Long
@@ -32,13 +32,13 @@ interface AppDao {
     suspend fun getFavorites(userId: Long): List<RepoBody>?
 
     @Query("SELECT favourite FROM `github_repositories` WHERE id = :repositoryId")
-    suspend fun isRepositoryFavorite(repositoryId: Long): Boolean
+    suspend fun isRepoFavorite(repositoryId: Long): Boolean
 
     @Query("SELECT * FROM `github_repositories` WHERE id = :repositoryId")
-    suspend fun getRepository(repositoryId: Long): RepoBody?
+    suspend fun getRepo(repositoryId: Long): RepoBody?
 
     @Query("SELECT * FROM `github_repositories` WHERE id = :userId")
-    suspend fun getRepositories(userId: Long): List<RepoBody>?
+    suspend fun getRepos(userId: Long): List<RepoBody>?
 
     @Query("SELECT * FROM `github_repositories_stargazers` WHERE id = :repositoryId")
     suspend fun getStargazers(repositoryId: Long): List<StargazerBody>?
@@ -48,17 +48,17 @@ interface AppDao {
     suspend fun editUser(userId: Long, login: String, avatarUrl: String)
 
     @Query("UPDATE `github_repositories` SET name = :name WHERE id = :repositoryId")
-    suspend fun editRepository(repositoryId: Long, name: String)
+    suspend fun editRepo(repositoryId: Long, name: String)
 
     @Query("UPDATE `github_repositories` SET favourite = 1 WHERE id = :repositoryId")
-    suspend fun addRepositoryToFavorites(repositoryId: Long)
+    suspend fun addRepoToFavorites(repositoryId: Long)
 
     @Query("UPDATE `github_repositories` SET favourite = 0 WHERE id = :repositoryId")
-    suspend fun removeRepositoryFromFavorites(repositoryId: Long)
+    suspend fun removeRepoFromFavorites(repositoryId: Long)
 
     //DELETE
     @Query("DELETE FROM `github_repositories` WHERE id = :repositoryId")
-    suspend fun deleteRepository(repositoryId: Long)
+    suspend fun deleteRepo(repositoryId: Long)
 
     @Query("DELETE FROM `github_repositories_stargazers` WHERE id = :repositoryId")
     suspend fun clearStargazers(repositoryId: Long)

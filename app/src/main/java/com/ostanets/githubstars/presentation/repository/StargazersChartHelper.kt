@@ -1,14 +1,14 @@
 package com.ostanets.githubstars.presentation.repository
 
-import com.ostanets.githubstars.domain.GithubStargazer
+import com.ostanets.githubstars.domain.Stargazer
 import org.threeten.bp.LocalDate
 import org.threeten.bp.temporal.ChronoUnit
 
 class StargazersChartHelper {
     companion object Factory {
-        fun getBars(stargazers: List<GithubStargazer>, groupType: GroupType): List<StargazersBar> {
+        fun getBars(stargazers: List<Stargazer>, groupType: GroupType): List<StargazersBar> {
             if (stargazers.isEmpty()) return emptyList()
-            val sortedStargazers = stargazers.sortedBy { it.StarredAt }
+            val sortedStargazers = stargazers.sortedBy { it.starredAt }
             return when (groupType) {
                 GroupType.DAILY -> getDailyBars(sortedStargazers)
                 GroupType.MONTHLY -> getMonthlyBars(sortedStargazers)
@@ -18,8 +18,8 @@ class StargazersChartHelper {
 
         fun getStargazers(
             bar: StargazersBar,
-            stargazers: List<GithubStargazer>,
-        ): List<GithubStargazer> {
+            stargazers: List<Stargazer>,
+        ): List<Stargazer> {
             return when (bar.GroupType) {
                 GroupType.DAILY -> getStargazersOfDay(bar.Date, stargazers)
                 GroupType.MONTHLY -> getStargazersOfMonth(bar.Date, stargazers)
@@ -27,10 +27,10 @@ class StargazersChartHelper {
             }
         }
 
-        private fun getDailyBars(sortedStargazers: List<GithubStargazer>): List<StargazersBar> {
+        private fun getDailyBars(sortedStargazers: List<Stargazer>): List<StargazersBar> {
             val result = arrayListOf<StargazersBar>()
-            val firstStarDate = sortedStargazers.first().StarredAt
-            val lastStarDate = sortedStargazers.last().StarredAt
+            val firstStarDate = sortedStargazers.first().starredAt
+            val lastStarDate = sortedStargazers.last().starredAt
             val offset = if (firstStarDate.toLocalDate().isEqual(lastStarDate.toLocalDate())) {
                 1
             } else {
@@ -45,7 +45,7 @@ class StargazersChartHelper {
             }
 
             for (stargazer in sortedStargazers) {
-                val starredDate = stargazer.StarredAt.toLocalDate()
+                val starredDate = stargazer.starredAt.toLocalDate()
                 val bar = result.find {
                     it.Date.isEqual(starredDate)
                 }
@@ -55,10 +55,10 @@ class StargazersChartHelper {
             return result
         }
 
-        private fun getMonthlyBars(sortedStargazers: List<GithubStargazer>): List<StargazersBar> {
+        private fun getMonthlyBars(sortedStargazers: List<Stargazer>): List<StargazersBar> {
             val result = arrayListOf<StargazersBar>()
-            val firstStarDate = sortedStargazers.first().StarredAt
-            val lastStarDate = sortedStargazers.last().StarredAt
+            val firstStarDate = sortedStargazers.first().starredAt
+            val lastStarDate = sortedStargazers.last().starredAt
             val offset = if (firstStarDate.toLocalDate().withDayOfMonth(1)
                     .isEqual(lastStarDate.toLocalDate().withDayOfMonth(1))) {
                 1
@@ -81,7 +81,7 @@ class StargazersChartHelper {
             }
 
             for (stargazer in sortedStargazers) {
-                val starredDate = stargazer.StarredAt.toLocalDate().withDayOfMonth(1)
+                val starredDate = stargazer.starredAt.toLocalDate().withDayOfMonth(1)
                 val bar = result.find {
                     it.Date.isEqual(starredDate)
                 }
@@ -91,10 +91,10 @@ class StargazersChartHelper {
             return result
         }
 
-        private fun getYearlyBars(sortedStargazers: List<GithubStargazer>): List<StargazersBar> {
+        private fun getYearlyBars(sortedStargazers: List<Stargazer>): List<StargazersBar> {
             val result = arrayListOf<StargazersBar>()
-            val firstStarDate = sortedStargazers.first().StarredAt
-            val lastStarDate = sortedStargazers.last().StarredAt
+            val firstStarDate = sortedStargazers.first().starredAt
+            val lastStarDate = sortedStargazers.last().starredAt
             val offset = if (firstStarDate.toLocalDate().withDayOfYear(1)
                     .isEqual(lastStarDate.toLocalDate().withDayOfYear(1))) {
                 1
@@ -110,7 +110,7 @@ class StargazersChartHelper {
             }
 
             for (stargazer in sortedStargazers) {
-                val starredDate = stargazer.StarredAt.toLocalDate().withDayOfYear(1)
+                val starredDate = stargazer.starredAt.toLocalDate().withDayOfYear(1)
                 val bar = result.find {
                     it.Date.isEqual(starredDate)
                 }
@@ -122,13 +122,13 @@ class StargazersChartHelper {
 
         private fun getStargazersOfDay(
             barDate: LocalDate,
-            stargazers: List<GithubStargazer>,
-        ): List<GithubStargazer> {
+            stargazers: List<Stargazer>,
+        ): List<Stargazer> {
 
-            val result = arrayListOf<GithubStargazer>()
+            val result = arrayListOf<Stargazer>()
 
             for (stargazer in stargazers) {
-                val stargazerDate = stargazer.StarredAt.toLocalDate()
+                val stargazerDate = stargazer.starredAt.toLocalDate()
                 if (stargazerDate.isEqual(barDate)) {
                     result.add(stargazer)
                 }
@@ -138,13 +138,13 @@ class StargazersChartHelper {
 
         private fun getStargazersOfMonth(
             barDate: LocalDate,
-            stargazers: List<GithubStargazer>,
-        ): List<GithubStargazer> {
+            stargazers: List<Stargazer>,
+        ): List<Stargazer> {
 
-            val result = arrayListOf<GithubStargazer>()
+            val result = arrayListOf<Stargazer>()
 
             for (stargazer in stargazers) {
-                val stargazerDate = stargazer.StarredAt.toLocalDate().withDayOfMonth(1)
+                val stargazerDate = stargazer.starredAt.toLocalDate().withDayOfMonth(1)
                 if (stargazerDate.isEqual(barDate)) {
                     result.add(stargazer)
                 }
@@ -154,13 +154,13 @@ class StargazersChartHelper {
 
         private fun getStargazersOfYear(
             barDate: LocalDate,
-            stargazers: List<GithubStargazer>,
-        ): List<GithubStargazer> {
+            stargazers: List<Stargazer>,
+        ): List<Stargazer> {
 
-            val result = arrayListOf<GithubStargazer>()
+            val result = arrayListOf<Stargazer>()
 
             for (stargazer in stargazers) {
-                val stargazerDate = stargazer.StarredAt.toLocalDate().withDayOfYear(1)
+                val stargazerDate = stargazer.starredAt.toLocalDate().withDayOfYear(1)
                 if (stargazerDate.isEqual(barDate)) {
                     result.add(stargazer)
                 }
